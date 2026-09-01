@@ -1,65 +1,50 @@
-import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import api from "../services/api";
 import { authService } from "../services/auth.service";
-import { Session } from "../types";
+import { useSession } from "../hooks/useSession";
 
 function SessionDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [session, setSession] = useState<any>(null);
-  const [loading, setLoading] = useState<any>(true);
-  const [error, setError] = useState<any>("");
+  const { session, loading, error, participate, unparticipate, deleteSession } =
+    useSession(Number(id));
+
   const user = authService.getCurrentUser();
 
-  useEffect(() => {
-    fetchSession();
-  }, [id]);
-
-  const fetchSession = async (): Promise<any> => {
+  /**
+   * Inscrit l'utilisateur courant à la session, avec alerte en cas d'échec.
+   */
+  const handleParticipate = async () => {
     try {
-      setLoading(true);
-      const response = await api.get<Session>(`/session/${id}`);
-      setSession(response.data);
-    } catch (err: any) {
-      setError("Failed to load session details");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleParticipate = async (): Promise<any> => {
-    try {
-      await api.post(`/session/${id}/participate/${user.id}`);
-      fetchSession();
-    } catch (err: any) {
+      await participate(user.id);
+    } catch (_) {
       alert("Failed to join session");
-      console.error(err);
     }
   };
 
-  const handleUnparticipate = async (): Promise<any> => {
+  /**
+   * Désinscrit l'utilisateur courant de la session, avec alerte en cas d'échec.
+   */
+  const handleUnparticipate = async () => {
     try {
-      await api.delete(`/session/${id}/participate/${user.id}`);
-      fetchSession();
-    } catch (err: any) {
+      await unparticipate(user.id);
+    } catch (_) {
       alert("Failed to leave session");
-      console.error(err);
     }
   };
 
-  const handleDelete = async (): Promise<any> => {
+  /**
+   * Demande confirmation, supprime la session puis redirige vers la liste.
+   */
+  const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this session?")) {
       return;
     }
 
     try {
-      await api.delete(`/session/${id}`);
+      await deleteSession();
       navigate("/sessions");
-    } catch (err: any) {
+    } catch (_) {
       alert("Failed to delete session");
-      console.error(err);
     }
   };
 

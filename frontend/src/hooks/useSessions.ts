@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Session } from "../types";
-import { sessionsService } from "../services/sessions.service";
+import { sessionService } from "../services/session.service";
 
 /**
  * Hook de gestion des sessions : charge la liste au montage, permet d'en supprimer.
@@ -27,7 +27,7 @@ export function useSessions() {
       setLoading(true);
       setError(null);
 
-      const response = await sessionsService.getAll(controller.signal);
+      const response = await sessionService.getAll(controller.signal);
       if (!controller.signal.aborted) setSessions(response.data);
     } catch (err) {
       if (!axios.isCancel(err)) setError("Failed to load sessions");
@@ -50,7 +50,7 @@ export function useSessions() {
    * @param sessionId - Identifiant de la session à supprimer
    */
   const deleteSession = async (sessionId: Session["id"]) => {
-    await sessionsService.delete(sessionId);
+    await sessionService.delete(sessionId);
     await fetchSessions();
   };
 
