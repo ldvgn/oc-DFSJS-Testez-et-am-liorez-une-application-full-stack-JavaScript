@@ -1,6 +1,13 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { authService } from "../services/auth.service";
 import { useSession } from "../hooks/useSession";
+import { Card } from "../components/Card";
+import { LinkButton } from "../components/LinkButton";
+import { Button } from "../components/Button";
+import { LoadingState } from "../components/LoadingState";
+import { Alert } from "../components/Alert";
+import { DescriptionItem } from "../components/DescriptionItem";
+import { SessionMeta } from "../components/SessionMeta";
 
 function SessionDetail() {
   const { id } = useParams();
@@ -48,113 +55,55 @@ function SessionDetail() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-xl text-gray-600">Loading session...</div>
-      </div>
-    );
-  }
+  if (loading) return <LoadingState label="Loading session..." />;
 
   if (error || !session) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          {error || "Session not found"}
-        </div>
-      </div>
-    );
+    return <Alert message={error || "Session not found"} />;
   }
 
   const isParticipating = session.users.includes(user.id);
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
-      <div className="container mx-auto px-4 max-w-3xl">
-        <div className="bg-white rounded-lg shadow-md p-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-6">
-            {session.name}
-          </h1>
+    <main>
+      <Card className="max-w-3xl mx-auto">
+        <h1 className="mb-8">{session.name}</h1>
 
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-gray-700 mb-2">
-              Details
-            </h2>
-            <div className="space-y-2 text-gray-600">
-              <p>
-                <strong>Date:</strong>{" "}
-                {new Date(session.date).toLocaleDateString("en-US", {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </p>
-              <p>
-                <strong>Teacher:</strong> {session.teacher.firstName}{" "}
-                {session.teacher.lastName}
-              </p>
-              <p>
-                <strong>Participants:</strong> {session.users.length}
-              </p>
-            </div>
-          </div>
+        <h2 className="mb-2">Details</h2>
+        <SessionMeta session={session} longDate className="mb-6" />
 
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-gray-700 mb-2">
-              Description
-            </h2>
-            <p className="text-gray-600 whitespace-pre-wrap">
-              {session.description}
-            </p>
-          </div>
+        <h2 className="mb-2">Description</h2>
+        <p className="text-gray-700 mb-6 whitespace-pre-wrap">
+          {session.description}
+        </p>
 
-          <div className="flex space-x-4">
-            {user.admin ? (
-              <>
-                <button
-                  onClick={() => navigate(`/sessions/edit/${id}`)}
-                  className="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={handleDelete}
-                  className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700"
-                >
-                  Delete
-                </button>
-              </>
-            ) : (
-              <>
-                {isParticipating ? (
-                  <button
-                    onClick={handleUnparticipate}
-                    className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700"
-                  >
-                    Leave Session
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleParticipate}
-                    className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
-                  >
-                    Join Session
-                  </button>
-                )}
-              </>
-            )}
+        <div className="flex space-x-2">
+          {user.admin ? (
+            <>
+              <LinkButton to={`/sessions/edit/${id}`}>Edit</LinkButton>
+              <Button onClick={handleDelete} variant="danger">
+                Delete
+              </Button>
+            </>
+          ) : (
+            <>
+              {isParticipating ? (
+                <Button onClick={handleUnparticipate} variant="danger">
+                  Leave Session
+                </Button>
+              ) : (
+                <Button onClick={handleParticipate} variant="success">
+                  Join Session
+                </Button>
+              )}
+            </>
+          )}
 
-            <button
-              onClick={() => navigate("/sessions")}
-              className="bg-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-400"
-            >
-              Back to Sessions
-            </button>
-          </div>
+          <LinkButton to={`/sessions`} variant="secondary">
+            Back to Sessions
+          </LinkButton>
         </div>
-      </div>
-    </div>
+      </Card>
+    </main>
   );
 }
 

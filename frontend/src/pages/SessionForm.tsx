@@ -6,6 +6,13 @@ import { sessionService } from "../services/session.service";
 import { useTeachers } from "../hooks/useTeachers";
 import { useSession } from "../hooks/useSession";
 import { useSubmit } from "../hooks/useSubmit";
+import { Card } from "../components/Card";
+import { Alert } from "../components/Alert";
+import { FormField } from "../components/FormField";
+import { TextInput } from "../components/TextInput";
+import { Select } from "../components/Select";
+import { Textarea } from "../components/Textarea";
+import { Button } from "../components/Button";
 
 function SessionForm() {
   const navigate = useNavigate();
@@ -22,7 +29,11 @@ function SessionForm() {
 
   const { teachers } = useTeachers();
   const { session, error: sessionError } = useSession(Number(id));
-  const { loading, error: saveError, submit } = useSubmit("Failed to save session");
+  const {
+    loading,
+    error: saveError,
+    submit,
+  } = useSubmit("Failed to save session");
 
   /**
    * Redirige les utilisateurs non-admin
@@ -81,106 +92,81 @@ function SessionForm() {
   const error = saveError || sessionError;
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
-      <div className="container mx-auto px-4 max-w-2xl">
-        <div className="bg-white rounded-lg shadow-md p-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-8">
-            {isEditMode ? "Edit Session" : "Create New Session"}
-          </h1>
+    <main>
+      <Card className="max-w-2xl mx-auto">
+        <h1 className="mb-8 text-center">
+          {isEditMode ? "Edit Session" : "Create New Session"}
+        </h1>
 
-          {error ? (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-              {error}
-            </div>
-          ) : null}
+        {error && <Alert message={error} className="w-full" />}
 
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Session Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
-                required
-              />
-            </div>
+        <form onSubmit={handleSubmit}>
+          <FormField label="Session Name" htmlFor="name">
+            <TextInput
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
+          </FormField>
+          <FormField label="Date" htmlFor="date">
+            <TextInput
+              type="date"
+              id="date"
+              name="date"
+              value={formData.date}
+              onChange={handleChange}
+              required
+            />
+          </FormField>
+          <FormField label="Teacher" htmlFor="teacher">
+            <Select
+              id="teacher"
+              name="teacherId"
+              value={formData.teacherId}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select a teacher</option>
+              {teachers.map((teacher: Teacher) => (
+                <option key={teacher.id} value={teacher.id}>
+                  {teacher.firstName} {teacher.lastName}
+                </option>
+              ))}
+            </Select>
+          </FormField>
+          <FormField label="Description" htmlFor="description">
+            <Textarea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              rows={6}
+              required
+            />
+          </FormField>
 
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Date
-              </label>
-              <input
-                type="date"
-                name="date"
-                value={formData.date}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
-                required
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Teacher
-              </label>
-              <select
-                name="teacherId"
-                value={formData.teacherId}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
-                required
-              >
-                <option value="">Select a teacher</option>
-                {teachers.map((teacher: Teacher) => (
-                  <option key={teacher.id} value={teacher.id}>
-                    {teacher.firstName} {teacher.lastName}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="mb-6">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Description
-              </label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                rows={6}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
-                required
-              />
-            </div>
-
-            <div className="flex space-x-4">
-              <button
-                type="submit"
-                disabled={loading}
-                className="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 disabled:bg-gray-400"
-              >
-                {loading
-                  ? "Saving..."
-                  : isEditMode
-                    ? "Update Session"
-                    : "Create Session"}
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate("/sessions")}
-                className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+          <div className="flex space-x-4 mt-2">
+            <Button type="submit" disabled={loading} className="flex-1">
+              {loading
+                ? "Saving..."
+                : isEditMode
+                  ? "Update Session"
+                  : "Create Session"}
+            </Button>
+            <Button
+              onClick={() => navigate("/sessions")}
+              className="flex-1"
+              variant="secondary"
+            >
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </Card>
+    </main>
   );
 }
 

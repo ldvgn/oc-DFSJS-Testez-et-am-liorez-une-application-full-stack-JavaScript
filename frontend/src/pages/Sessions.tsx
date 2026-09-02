@@ -1,7 +1,12 @@
-import { Link } from "react-router-dom";
 import { authService } from "../services/auth.service";
 import { useSessions } from "../hooks/useSessions";
 import { Session } from "../types";
+import { LoadingState } from "../components/LoadingState";
+import { Alert } from "../components/Alert";
+import { LinkButton } from "../components/LinkButton";
+import { Card } from "../components/Card";
+import { Button } from "../components/Button";
+import { SessionMeta } from "../components/SessionMeta";
 
 function Sessions() {
   const { sessions, loading, error, deleteSession } = useSessions();
@@ -24,90 +29,58 @@ function Sessions() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-xl text-gray-600">Loading sessions...</div>
-      </div>
-    );
-  }
+  if (loading) return <LoadingState label="Loading sessions..." />;
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          {error}
-        </div>
-      </div>
-    );
-  }
+  if (error) return <Alert message={error} />;
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Yoga Sessions</h1>
-          {user && user.admin ? (
-            <Link
-              to="/sessions/create"
-              className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700"
-            >
-              Create Session
-            </Link>
-          ) : null}
-        </div>
+    <main>
+      <header className="flex justify-between items-center mb-8">
+        <h1>Yoga Sessions</h1>
+        {user?.admin && (
+          <LinkButton to="/sessions/create">Create Session</LinkButton>
+        )}
+      </header>
 
-        {sessions.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <p className="text-gray-600">No sessions available</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sessions.map((session: Session) => (
-              <div
-                key={session.id}
-                className="bg-white rounded-lg shadow-md p-6"
-              >
-                <h3 className="text-xl font-bold text-gray-800 mb-2">
-                  {session.name}
-                </h3>
-                <p className="text-gray-600 mb-2">
-                  Date: {new Date(session.date).toLocaleDateString()}
-                </p>
-                <p className="text-gray-600 mb-2">
-                  Teacher: {session.teacher.firstName}{" "}
-                  {session.teacher.lastName}
-                </p>
-                <p className="text-gray-600 mb-4">
-                  Participants: {session.users.length}
-                </p>
+      {sessions.length === 0 ? (
+        <Card className="text-center">
+          <p className="text-gray-600">No sessions available</p>
+        </Card>
+      ) : (
+        <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {sessions.map((session: Session) => (
+            <li key={session.id}>
+              <Card as="article" className="p-6!">
+                <h2 className="mb-2">{session.name}</h2>
+                <SessionMeta session={session} className="mb-4" />
+
                 <p className="text-gray-700 mb-4 line-clamp-3">
                   {session.description}
                 </p>
 
                 <div className="flex space-x-2">
-                  <Link
+                  <LinkButton
                     to={`/sessions/${session.id}`}
-                    className="flex-1 bg-indigo-600 text-white px-4 py-2 rounded text-center hover:bg-indigo-700"
+                    className="flex-1 text-center"
                   >
                     View Details
-                  </Link>
+                  </LinkButton>
 
                   {user?.admin && (
-                    <button
+                    <Button
                       onClick={() => handleDelete(session.id)}
-                      className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                      variant="danger"
                     >
                       Delete
-                    </button>
+                    </Button>
                   )}
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+              </Card>
+            </li>
+          ))}
+        </ul>
+      )}
+    </main>
   );
 }
 

@@ -22,7 +22,7 @@ function PrivateRoute({ children }: { children: ReactNode }) {
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen flex flex-col bg-gray-100">
         <Navbar />
         <Routes>
           <Route path="/" element={<Navigate to="/sessions" />} />

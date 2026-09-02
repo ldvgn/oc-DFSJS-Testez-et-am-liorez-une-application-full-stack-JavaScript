@@ -1,8 +1,14 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { authService } from "../services/auth.service";
 import { useSubmit } from "../hooks/useSubmit";
 import { RegisterData } from "../types";
+import { Card } from "../components/Card";
+import { Alert } from "../components/Alert";
+import { FormField } from "../components/FormField";
+import { TextInput } from "../components/TextInput";
+import { Button } from "../components/Button";
+import { TextLink } from "../components/TextLink";
 
 function Register() {
   const navigate = useNavigate();
@@ -28,93 +34,69 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 px-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
-          Register for Yoga Studio
-        </h2>
+    <main className="flex-1 justify-items-center content-center py-12 px-4">
+      <Card className="max-w-md w-full">
+        <h1 className="mb-8 text-center">Register for Yoga Studio</h1>
 
-        {error ? (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
-          </div>
-        ) : null}
+        {error && <Alert message={error} className="w-full" />}
 
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              First Name
-            </label>
-            <input
+          <FormField label="First Name" htmlFor="firstName">
+            <TextInput
               type="text"
+              id="firstName"
               name="firstName"
+              autoComplete="given-name"
               value={formData.firstName}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
               required
             />
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Last Name
-            </label>
-            <input
+          </FormField>
+          <FormField label="Last Name" htmlFor="lastName">
+            <TextInput
               type="text"
+              id="lastName"
               name="lastName"
+              autoComplete="family-name"
               value={formData.lastName}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
               required
             />
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Email
-            </label>
-            <input
-              type="email"
+          </FormField>
+          <FormField label="Email" htmlFor="email">
+            <TextInput
+              id="email"
               name="email"
+              type="email"
+              autoComplete="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
               required
             />
-          </div>
-
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Password
-            </label>
-            <input
-              type="password"
+          </FormField>
+          <FormField label="Password" htmlFor="password">
+            <TextInput
+              id="password"
               name="password"
+              type="password"
+              autoComplete="current-password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
               required
               minLength={8}
             />
-          </div>
+          </FormField>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 disabled:bg-gray-400"
-          >
+          <Button type="submit" disabled={loading} className="w-full mt-2">
             {loading ? "Registering..." : "Register"}
-          </button>
+          </Button>
         </form>
 
         <p className="mt-4 text-center text-gray-600">
-          Already have an account?{" "}
-          <Link to="/login" className="text-indigo-600 hover:text-indigo-800">
-            Login here
-          </Link>
+          Already have an account? <TextLink to="/login">Login here</TextLink>
         </p>
-      </div>
-    </div>
+      </Card>
+    </main>
   );
 }
 

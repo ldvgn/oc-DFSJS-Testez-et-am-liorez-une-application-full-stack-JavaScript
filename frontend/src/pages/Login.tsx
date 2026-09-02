@@ -1,7 +1,13 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { authService } from "../services/auth.service";
 import { useSubmit } from "../hooks/useSubmit";
+import { Card } from "../components/Card";
+import { Alert } from "../components/Alert";
+import { FormField } from "../components/FormField";
+import { TextInput } from "../components/TextInput";
+import { Button } from "../components/Button";
+import { TextLink } from "../components/TextLink";
 
 function Login() {
   const navigate = useNavigate();
@@ -18,65 +24,46 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 px-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
-          Login to Yoga Studio
-        </h2>
+    <main className="flex-1 justify-items-center content-center py-12 px-4">
+      <Card className="max-w-md w-full">
+        <h1 className="mb-8 text-center">Login to Yoga Studio</h1>
 
-        {error ? (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
-          </div>
-        ) : null}
+        {error && <Alert message={error} className="w-full" />}
 
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Email
-            </label>
-            <input
+          <FormField label="Email" htmlFor="email">
+            <TextInput
+              id="email"
+              name="email"
               type="email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
               required
             />
-          </div>
-
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Password
-            </label>
-            <input
+          </FormField>
+          <FormField label="Password" htmlFor="password">
+            <TextInput
+              id="password"
+              name="password"
               type="password"
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
               required
             />
-          </div>
+          </FormField>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 disabled:bg-gray-400"
-          >
+          <Button type="submit" disabled={loading} className="w-full mt-2">
             {loading ? "Loading..." : "Login"}
-          </button>
+          </Button>
         </form>
-
         <p className="mt-4 text-center text-gray-600">
           Don't have an account?{" "}
-          <Link
-            to="/register"
-            className="text-indigo-600 hover:text-indigo-800"
-          >
-            Register here
-          </Link>
+          <TextLink to="/register">Register here</TextLink>
         </p>
-      </div>
-    </div>
+      </Card>
+    </main>
   );
 }
 
