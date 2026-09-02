@@ -13,7 +13,7 @@ import axios from "axios";
  */
 export function useSession(id: Session["id"]) {
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(!Number.isNaN(id));
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const controllerRef = useRef<AbortController | null>(null);
 
@@ -88,7 +88,6 @@ export function useSession(id: Session["id"]) {
     session,
     loading,
     error,
-    fetchSession,
     participate,
     unparticipate,
     deleteSession,

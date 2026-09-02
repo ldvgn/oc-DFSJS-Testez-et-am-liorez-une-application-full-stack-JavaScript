@@ -1,38 +1,26 @@
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../services/api";
 import { authService } from "../services/auth.service";
+import { useUserInfo } from "../hooks/useUserInfo";
+import { useSubmit } from "../hooks/useSubmit";
 
 function Profile() {
   const navigate = useNavigate();
-  const [userInfo, setUserInfo] = useState<any>(null);
-  const [loading, setLoading] = useState<any>(true);
-  const [error, setError] = useState<any>("");
-  const [promoteLoading, setPromoteLoading] = useState<any>(false);
-  const [promoteError, setPromoteError] = useState<any>("");
   const user = authService.getCurrentUser();
-  const isDev = (import.meta as any).env?.DEV === true;
+  const isDev = import.meta.env.DEV;
 
-  useEffect(() => {
-    if (user) {
-      fetchUserInfo();
-    }
-  }, []);
+  const { userInfo, loading, error, deleteUser, promoteToAdmin } = useUserInfo(
+    user.id,
+  );
+  const {
+    loading: promoteLoading,
+    error: promoteError,
+    submit,
+  } = useSubmit("Failed to promote to admin");
 
-  const fetchUserInfo = async (): Promise<any> => {
-    try {
-      setLoading(true);
-      const response = await api.get(`/user/${user.id}`);
-      setUserInfo(response.data);
-    } catch (err: any) {
-      setError("Failed to load user information");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteAccount = async (): Promise<any> => {
+  /**
+   * Demande confirmation, supprime le compte, déconnecte l'utilisateur puis le redirige vers la page de connexion.
+   */
+  const handleDeleteAccount = async () => {
     if (
       !window.confirm(
         "Are you sure you want to delete your account? This action cannot be undone.",
@@ -42,29 +30,18 @@ function Profile() {
     }
 
     try {
-      await api.delete(`/user/${user.id}`);
+      await deleteUser();
       authService.logout();
       navigate("/login");
-    } catch (err: any) {
+    } catch (_) {
       alert("Failed to delete account");
-      console.error(err);
     }
   };
 
-  const handlePromoteAdmin = async (): Promise<any> => {
-    try {
-      setPromoteError("");
-      setPromoteLoading(true);
-      const response = await api.post("/user/promote-admin");
-      setUserInfo(response.data);
-      authService.updateCurrentUser({ admin: response.data.admin });
-    } catch (err: any) {
-      setPromoteError("Failed to promote to admin");
-      console.error(err);
-    } finally {
-      setPromoteLoading(false);
-    }
-  };
+  /**
+   * Promeut l'utilisateur courant au rôle d'administrateur.
+   */
+  const handlePromoteAdmin = () => submit(promoteToAdmin);
 
   if (loading) {
     return (
@@ -150,11 +127,13 @@ function Profile() {
                 Member Since
               </label>
               <p className="text-lg text-gray-800">
-                {new Date(userInfo.createdAt).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
+                {userInfo.createdAt
+                  ? new Date(userInfo.createdAt).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })
+                  : "—"}
               </p>
             </div>
           </div>
