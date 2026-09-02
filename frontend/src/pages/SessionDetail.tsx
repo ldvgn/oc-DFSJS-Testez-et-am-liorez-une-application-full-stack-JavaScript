@@ -8,7 +8,7 @@ function SessionDetail() {
   const { session, loading, error, participate, unparticipate, deleteSession } =
     useSession(Number(id));
 
-  const user = authService.getCurrentUser();
+  const user = authService.getCurrentUser()!;
 
   /**
    * Inscrit l'utilisateur courant à la session, avec alerte en cas d'échec.

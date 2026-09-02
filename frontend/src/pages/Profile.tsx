@@ -5,7 +5,7 @@ import { useSubmit } from "../hooks/useSubmit";
 
 function Profile() {
   const navigate = useNavigate();
-  const user = authService.getCurrentUser();
+  const user = authService.getCurrentUser()!;
   const isDev = import.meta.env.DEV;
 
   const { userInfo, loading, error, deleteUser, promoteToAdmin } = useUserInfo(
