@@ -1,27 +1,20 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { authService } from '../services/auth.service';
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { authService } from "../services/auth.service";
+import { useSubmit } from "../hooks/useSubmit";
 
 function Login() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState<any>('');
-  const [password, setPassword] = useState<any>('');
-  const [error, setError] = useState<any>('');
-  const [loading, setLoading] = useState<any>(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { loading, error, submit } = useSubmit("Login failed");
 
-  const handleSubmit = async (e: any): Promise<any> => {
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
+    submit(async () => {
       await authService.login({ email, password });
-      navigate('/sessions');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed');
-    } finally {
-      setLoading(false);
-    }
+      navigate("/sessions");
+    });
   };
 
   return (
@@ -69,13 +62,16 @@ function Login() {
             disabled={loading}
             className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 disabled:bg-gray-400"
           >
-            {loading ? 'Loading...' : 'Login'}
+            {loading ? "Loading..." : "Login"}
           </button>
         </form>
 
         <p className="mt-4 text-center text-gray-600">
-          Don't have an account?{' '}
-          <Link to="/register" className="text-indigo-600 hover:text-indigo-800">
+          Don't have an account?{" "}
+          <Link
+            to="/register"
+            className="text-indigo-600 hover:text-indigo-800"
+          >
             Register here
           </Link>
         </p>

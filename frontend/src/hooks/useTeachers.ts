@@ -22,10 +22,10 @@ export function useTeachers() {
     const controller = new AbortController();
     controllerRef.current = controller;
 
-    try {
-      setLoading(true);
-      setError(null);
+    setLoading(true);
+    setError(null);
 
+    try {
       const response = await teacherService.getAll(controller.signal);
       if (!controller.signal.aborted) setTeachers(response.data);
     } catch (err) {

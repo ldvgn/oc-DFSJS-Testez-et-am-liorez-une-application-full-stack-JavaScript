@@ -23,10 +23,10 @@ export function useSessions() {
     const controller = new AbortController();
     controllerRef.current = controller;
 
-    try {
-      setLoading(true);
-      setError(null);
+    setLoading(true);
+    setError(null);
 
+    try {
       const response = await sessionService.getAll(controller.signal);
       if (!controller.signal.aborted) setSessions(response.data);
     } catch (err) {

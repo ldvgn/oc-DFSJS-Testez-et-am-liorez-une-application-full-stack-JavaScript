@@ -32,10 +32,10 @@ export function useSession(id: Session["id"]) {
     const controller = new AbortController();
     controllerRef.current = controller;
 
-    try {
-      setLoading(true);
-      setError(null);
+    setLoading(true);
+    setError(null);
 
+    try {
       const response = await sessionService.getById(id, controller.signal);
       if (!controller.signal.aborted) setSession(response.data);
     } catch (err) {

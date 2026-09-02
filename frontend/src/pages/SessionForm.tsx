@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
 import { authService } from "../services/auth.service";
 import { Teacher } from "../types";
 import { sessionService } from "../services/session.service";
 import { useTeachers } from "../hooks/useTeachers";
 import { useSession } from "../hooks/useSession";
+import { useSubmit } from "../hooks/useSubmit";
 
 function SessionForm() {
   const navigate = useNavigate();
@@ -19,11 +19,10 @@ function SessionForm() {
     description: "",
     teacherId: "",
   });
-  const [loading, setLoading] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
 
   const { teachers } = useTeachers();
   const { session, error: sessionError } = useSession(Number(id));
+  const { loading, error: saveError, submit } = useSubmit("Failed to save session");
 
   /**
    * Redirige les utilisateurs non-admin
@@ -64,31 +63,19 @@ function SessionForm() {
    *
    * @param e - Événement de soumission du formulaire.
    */
-  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (loading) return;
 
     const payload = { ...formData, teacherId: Number(formData.teacherId) };
 
-    try {
-      setSaveError(null);
-      setLoading(true);
-
+    submit(async () => {
       if (isEditMode) {
         await sessionService.update(Number(id), payload);
       } else {
         await sessionService.create(payload);
       }
       navigate("/sessions");
-    } catch (err) {
-      setSaveError(
-        axios.isAxiosError(err) && err.response?.data?.message
-          ? err.response.data.message
-          : "Failed to save session",
-      );
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   const error = saveError || sessionError;
