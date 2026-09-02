@@ -13,7 +13,7 @@ import axios from "axios";
  */
 export function useSession(id: Session["id"]) {
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!Number.isNaN(id));
   const [error, setError] = useState<string | null>(null);
   const controllerRef = useRef<AbortController | null>(null);
 
@@ -23,6 +23,11 @@ export function useSession(id: Session["id"]) {
    * @returns Une promesse résolue une fois l'état mis à jour.
    */
   const fetchSession = async () => {
+    if (!id || Number.isNaN(id)) {
+      setLoading(false);
+      return;
+    }
+
     controllerRef.current?.abort();
     const controller = new AbortController();
     controllerRef.current = controller;

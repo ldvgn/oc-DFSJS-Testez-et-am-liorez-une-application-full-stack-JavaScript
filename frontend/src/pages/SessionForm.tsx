@@ -1,91 +1,97 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import api from "../services/api";
+import axios from "axios";
 import { authService } from "../services/auth.service";
-import { Teacher, Session } from "../types";
+import { Teacher } from "../types";
+import { sessionService } from "../services/session.service";
+import { useTeachers } from "../hooks/useTeachers";
+import { useSession } from "../hooks/useSession";
 
 function SessionForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditMode = !!id;
+  const user = authService.getCurrentUser();
 
-  const [formData, setFormData] = useState<any>({
+  const [formData, setFormData] = useState({
     name: "",
     date: "",
     description: "",
     teacherId: "",
   });
-  const [teachers, setTeachers] = useState<any>([]);
-  const [loading, setLoading] = useState<any>(false);
-  const [error, setError] = useState<any>("");
-  const user = authService.getCurrentUser();
+  const [loading, setLoading] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
-  // Redirect if not admin
+  const { teachers } = useTeachers();
+  const { session, error: sessionError } = useSession(Number(id));
+
+  /**
+   * Redirige les utilisateurs non-admin
+   */
   useEffect(() => {
-    if (!user || !user.admin) {
-      navigate("/sessions");
-    }
+    if (!user || !user.admin) navigate("/sessions");
   }, [user, navigate]);
 
+  /**
+   * En mode édition précharge la session dans le formulaire
+   */
   useEffect(() => {
-    fetchTeachers();
-    if (isEditMode) {
-      fetchSession();
-    }
-  }, [id]);
-
-  const fetchTeachers = async (): Promise<any> => {
-    try {
-      const response = await api.get<Teacher[]>("/teacher");
-      setTeachers(response.data);
-    } catch (err: any) {
-      console.error("Failed to fetch teachers", err);
-    }
-  };
-
-  const fetchSession = async (): Promise<any> => {
-    try {
-      const response = await api.get<Session>(`/session/${id}`);
-      const session = response.data;
-      setFormData({
-        name: session.name,
-        date: new Date(session.date).toISOString().split("T")[0],
-        description: session.description,
-        teacherId: session.teacher.id,
-      });
-    } catch (err: any) {
-      setError("Failed to load session");
-      console.error(err);
-    }
-  };
-
-  const handleChange = (e: any): any => {
-    const value =
-      e.target.name === "teacherId" ? parseInt(e.target.value) : e.target.value;
+    if (!session) return;
     setFormData({
-      ...formData,
-      [e.target.name]: value,
+      name: session.name,
+      date: new Date(session.date).toISOString().split("T")[0],
+      description: session.description,
+      teacherId: String(session.teacher.id),
     });
+  }, [session]);
+
+  /**
+   * Met à jour un champ du formulaire
+   *
+   * @param e - Évènement de changement émis par un input, select ou textarea.
+   */
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: any): Promise<any> => {
+  /**
+   * Crée ou met à jour la session, puis redirige.
+   *
+   * @param e - Événement de soumission du formulaire.
+   */
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
+    if (loading) return;
+
+    const payload = { ...formData, teacherId: Number(formData.teacherId) };
 
     try {
+      setSaveError(null);
+      setLoading(true);
+
       if (isEditMode) {
-        await api.put(`/session/${id}`, formData);
+        await sessionService.update(Number(id), payload);
       } else {
-        await api.post("/session", formData);
+        await sessionService.create(payload);
       }
       navigate("/sessions");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to save session");
+    } catch (err) {
+      setSaveError(
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : "Failed to save session",
+      );
     } finally {
       setLoading(false);
     }
   };
+
+  const error = saveError || sessionError;
 
   return (
     <div className="min-h-screen bg-gray-100 py-8">
@@ -142,7 +148,7 @@ function SessionForm() {
                 required
               >
                 <option value="">Select a teacher</option>
-                {teachers.map((teacher: any) => (
+                {teachers.map((teacher: Teacher) => (
                   <option key={teacher.id} value={teacher.id}>
                     {teacher.firstName} {teacher.lastName}
                   </option>

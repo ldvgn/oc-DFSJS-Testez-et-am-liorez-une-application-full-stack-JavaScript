@@ -1,4 +1,4 @@
-import { Session, User } from "../types";
+import { Session, SessionFormData, User } from "../types";
 import api from "./api";
 
 export const sessionService = {
@@ -47,4 +47,22 @@ export const sessionService = {
    */
   unparticipate: (sessionId: Session["id"], userId: User["id"]) =>
     api.delete(`/session/${sessionId}/participate/${userId}`),
+
+  /**
+   * Crée une nouvelle session.
+   *
+   * @param data - Données du formulaire de session.
+   * @returns Réponse axios de la requête POST.
+   */
+  create: (data: SessionFormData) => api.post("/session", data),
+
+  /**
+   * Met à jour une session existante.
+   *
+   * @param sessionId - Identifiant de la session à modifier.
+   * @param data - Données du formulaire de session.
+   * @returns Réponse axios de la requête PUT.
+   */
+  update: (sessionId: Session["id"], data: SessionFormData) =>
+    api.put(`/session/${sessionId}`, data),
 };
