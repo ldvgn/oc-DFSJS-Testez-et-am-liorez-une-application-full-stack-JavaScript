@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Session, User } from "../types";
 import { sessionService } from "../services/session.service";
 import axios from "axios";
+import { logger } from "../utils/logger";
 
 /**
  * Loads and manages a session by id.
@@ -39,7 +40,10 @@ export function useSession(id: Session["id"]) {
       const response = await sessionService.getById(id, controller.signal);
       if (!controller.signal.aborted) setSession(response.data);
     } catch (err) {
-      if (!axios.isCancel(err)) setError("Failed to load session details");
+      if (!axios.isCancel(err)) {
+        setError("Failed to load session details");
+        logger.error("Failed to load teachers", err);
+      }
     } finally {
       if (!controller.signal.aborted) setLoading(false);
     }

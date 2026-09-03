@@ -3,6 +3,7 @@ import { User } from "../types";
 import { userService } from "../services/user.service";
 import axios from "axios";
 import { authService } from "../services/auth.service";
+import { logger } from "../utils/logger";
 
 /**
  * Loads a user's information by id.
@@ -38,7 +39,10 @@ export function useUserInfo(id: User["id"]) {
       const response = await userService.getById(id, controller.signal);
       if (!controller.signal.aborted) setUserInfo(response.data);
     } catch (err) {
-      if (!axios.isCancel(err)) setError("Failed to load user information");
+      if (!axios.isCancel(err)) {
+        setError("Failed to load user information");
+        logger.error("Failed to load user information", err);
+      }
     } finally {
       if (!controller.signal.aborted) setLoading(false);
     }

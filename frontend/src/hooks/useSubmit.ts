@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { logger } from "../utils/logger";
 
 /**
  * Wraps an async form action:
@@ -34,6 +35,7 @@ export function useSubmit(fallbackError: string) {
           ? err.response.data.message
           : fallbackError,
       );
+      logger.error(fallbackError, err);
     } finally {
       setLoading(false);
     }

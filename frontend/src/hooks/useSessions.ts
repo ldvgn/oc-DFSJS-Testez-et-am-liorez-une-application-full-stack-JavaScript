@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Session } from "../types";
 import { sessionService } from "../services/session.service";
+import { logger } from "../utils/logger";
 
 /**
  * Session management hook: loads the list on mount, allows deleting one.
@@ -30,7 +31,10 @@ export function useSessions() {
       const response = await sessionService.getAll(controller.signal);
       if (!controller.signal.aborted) setSessions(response.data);
     } catch (err) {
-      if (!axios.isCancel(err)) setError("Failed to load sessions");
+      if (!axios.isCancel(err)) {
+        setError("Failed to load sessions");
+        logger.error("Failed to load sessions", err);
+      }
     } finally {
       if (!controller.signal.aborted) setLoading(false);
     }

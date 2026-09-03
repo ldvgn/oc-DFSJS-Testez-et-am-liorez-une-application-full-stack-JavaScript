@@ -9,6 +9,8 @@ import { DescriptionItem } from "../components/DescriptionItem";
 import { Badge } from "../components/Badge";
 import { Button } from "../components/Button";
 import { LinkButton } from "../components/LinkButton";
+import { logger } from "../utils/logger";
+import { notify } from "../utils/notify";
 
 function Profile() {
   const navigate = useNavigate();
@@ -40,8 +42,11 @@ function Profile() {
       await deleteUser();
       authService.logout();
       navigate("/login");
-    } catch (_) {
-      alert("Failed to delete account");
+    } catch (err) {
+      notify.error("Failed to delete account");
+      logger.error("msg", err, {
+        user: `${user.firstName} ${user.lastName} (${user.id})`,
+      });
     }
   };
 

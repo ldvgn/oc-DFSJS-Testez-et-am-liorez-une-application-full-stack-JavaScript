@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Teacher } from "../types";
 import { teacherService } from "../services/teacher.service";
+import { logger } from "../utils/logger";
 
 /**
  * Loads the list of teachers on mount.
@@ -29,7 +30,10 @@ export function useTeachers() {
       const response = await teacherService.getAll(controller.signal);
       if (!controller.signal.aborted) setTeachers(response.data);
     } catch (err) {
-      if (!axios.isCancel(err)) setError("Failed to load teachers");
+      if (!axios.isCancel(err)) {
+        setError("Failed to load teachers");
+        logger.error("Failed to load teachers", err);
+      }
     } finally {
       if (!controller.signal.aborted) setLoading(false);
     }

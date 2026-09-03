@@ -7,15 +7,17 @@ import { LinkButton } from "../components/LinkButton";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { SessionMeta } from "../components/SessionMeta";
+import { notify } from "../utils/notify";
+import { logger } from "../utils/logger";
 
 function Sessions() {
   const { sessions, loading, error, deleteSession } = useSessions();
   const user = authService.getCurrentUser();
 
   /**
-   * Asks for confirmation then deletes the session, alerting on failure.
+   * Asks for confirmation, then deletes the session, showing an alert on failure.
    *
-   * @param sessionId - Id of the session to delete.
+   * @param sessionId - Identifier of the session to delete.
    */
   const handleDelete = async (sessionId: Session["id"]) => {
     if (!window.confirm("Are you sure you want to delete this session?")) {
@@ -24,8 +26,12 @@ function Sessions() {
 
     try {
       await deleteSession(sessionId);
-    } catch (_) {
-      alert("Failed to delete session");
+    } catch (err) {
+      notify.error("Failed to delete session");
+      logger.error("Failed to delete session", err, {
+        sessionId,
+        user: `${user?.firstName} ${user?.lastName} (${user?.id})`,
+      });
     }
   };
 

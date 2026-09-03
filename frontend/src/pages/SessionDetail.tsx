@@ -6,8 +6,9 @@ import { LinkButton } from "../components/LinkButton";
 import { Button } from "../components/Button";
 import { LoadingState } from "../components/LoadingState";
 import { Alert } from "../components/Alert";
-import { DescriptionItem } from "../components/DescriptionItem";
 import { SessionMeta } from "../components/SessionMeta";
+import { logger } from "../utils/logger";
+import { notify } from "../utils/notify";
 
 function SessionDetail() {
   const { id } = useParams();
@@ -23,8 +24,12 @@ function SessionDetail() {
   const handleParticipate = async () => {
     try {
       await participate(user.id);
-    } catch (_) {
-      alert("Failed to join session");
+    } catch (err) {
+      notify.error("Failed to join session");
+      logger.error("msg", err, {
+        sessionId: session?.id,
+        user: `${user.firstName} ${user.lastName} (${user.id})`,
+      });
     }
   };
 
@@ -34,8 +39,12 @@ function SessionDetail() {
   const handleUnparticipate = async () => {
     try {
       await unparticipate(user.id);
-    } catch (_) {
-      alert("Failed to leave session");
+    } catch (err) {
+      notify.error("Failed to leave session");
+      logger.error("msg", err, {
+        sessionId: session?.id,
+        user: `${user.firstName} ${user.lastName} (${user.id})`,
+      });
     }
   };
 
@@ -50,8 +59,12 @@ function SessionDetail() {
     try {
       await deleteSession();
       navigate("/sessions");
-    } catch (_) {
-      alert("Failed to delete session");
+    } catch (err) {
+      logger.error("Failed to delete session", err, {
+        sessionId: session?.id,
+        user: `${user.firstName} ${user.lastName} (${user.id})`,
+      });
+      notify.error("Failed to delete session");
     }
   };
 
