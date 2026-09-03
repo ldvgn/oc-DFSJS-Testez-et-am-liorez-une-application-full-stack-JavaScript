@@ -18,7 +18,7 @@ function SessionDetail() {
   const user = authService.getCurrentUser()!;
 
   /**
-   * Inscrit l'utilisateur courant à la session, avec alerte en cas d'échec.
+   * Registers the current user for the session, alerting on failure.
    */
   const handleParticipate = async () => {
     try {
@@ -29,7 +29,7 @@ function SessionDetail() {
   };
 
   /**
-   * Désinscrit l'utilisateur courant de la session, avec alerte en cas d'échec.
+   * Unregisters the current user from the session, alerting on failure.
    */
   const handleUnparticipate = async () => {
     try {
@@ -40,7 +40,7 @@ function SessionDetail() {
   };
 
   /**
-   * Demande confirmation, supprime la session puis redirige vers la liste.
+   * Asks for confirmation, deletes the session, then redirects to the list.
    */
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this session?")) {

@@ -4,12 +4,12 @@ import { sessionService } from "../services/session.service";
 import axios from "axios";
 
 /**
- * Charge et gère une session par son identifiant.
+ * Loads and manages a session by id.
  *
- * @param id - Identifiant de la session
+ * @param id - Session id
  * @returns
- * - L'état de la session (`session`, `loading`, `error`)
- * - les actions `fetchSession`, `participate`, `unparticipate` et `deleteSession`.
+ * - Session state (`session`, `loading`, `error`)
+ * - `fetchSession`, `participate`, `unparticipate`, and `deleteSession` actions.
  */
 export function useSession(id: Session["id"]) {
   const [session, setSession] = useState<Session | null>(null);
@@ -18,9 +18,9 @@ export function useSession(id: Session["id"]) {
   const controllerRef = useRef<AbortController | null>(null);
 
   /**
-   * Récupère la session courante et annule toute requête précédente en cours.
+   * Fetches the current session and cancels any previous request in flight.
    *
-   * @returns Une promesse résolue une fois l'état mis à jour.
+   * @returns A promise resolved once the state is updated.
    */
   const fetchSession = async () => {
     if (!id || Number.isNaN(id)) {
@@ -46,7 +46,7 @@ export function useSession(id: Session["id"]) {
   };
 
   /**
-   * Recharge la session à chaque changement d'`id` et annule la requête au démontage.
+   * Reloads the session whenever `id` changes and cancels the request on unmount.
    */
   useEffect(() => {
     fetchSession();
@@ -54,10 +54,10 @@ export function useSession(id: Session["id"]) {
   }, [id]);
 
   /**
-   * Inscrit un utilisateur à la session puis rafraîchit les données.
+   * Registers a user for the session then refreshes the data.
    *
-   * @param userId - Identifiant de l'utilisateur à inscrire.
-   * @returns Une promesse résolue après le rechargement de la session.
+   * @param userId - Id of the user to register.
+   * @returns A promise resolved after the session reloads.
    */
   const participate = async (userId: User["id"]) => {
     await sessionService.participate(id, userId);
@@ -65,10 +65,10 @@ export function useSession(id: Session["id"]) {
   };
 
   /**
-   * Désinscrit un utilisateur de la session puis rafraîchit les données.
+   * Unregisters a user from the session then refreshes the data.
    *
-   * @param userId - Identifiant de l'utilisateur à désinscrire.
-   * @returns Une promesse résolue après le rechargement de la session.
+   * @param userId - Id of the user to unregister.
+   * @returns A promise resolved after the session reloads.
    */
   const unparticipate = async (userId: User["id"]) => {
     await sessionService.unparticipate(id, userId);
@@ -76,9 +76,9 @@ export function useSession(id: Session["id"]) {
   };
 
   /**
-   * Supprime la session courante.
+   * Deletes the current session.
    *
-   * @returns Une promesse résolue une fois la suppression effectuée.
+   * @returns A promise resolved once the deletion is done.
    */
   const deleteSession = async () => {
     await sessionService.delete(id);

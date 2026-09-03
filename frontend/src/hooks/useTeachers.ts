@@ -4,9 +4,9 @@ import { Teacher } from "../types";
 import { teacherService } from "../services/teacher.service";
 
 /**
- * Charge la liste des enseignants au montage.
+ * Loads the list of teachers on mount.
  *
- * @returns `teachers` (liste), `loading`, `error`.
+ * @returns `teachers` (list), `loading`, `error`.
  */
 export function useTeachers() {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
@@ -15,7 +15,7 @@ export function useTeachers() {
   const controllerRef = useRef<AbortController | null>(null);
 
   /**
-   * Récupère la liste des enseignants et annule toute requête précédente.
+   * Fetches the list of teachers and cancels any previous request.
    */
   const fetchTeachers = async () => {
     controllerRef.current?.abort();
@@ -36,7 +36,7 @@ export function useTeachers() {
   };
 
   /**
-   * Charge les enseignants au montage et annule la requête au démontage.
+   * Loads teachers on mount and cancels the request on unmount.
    */
   useEffect(() => {
     fetchTeachers();

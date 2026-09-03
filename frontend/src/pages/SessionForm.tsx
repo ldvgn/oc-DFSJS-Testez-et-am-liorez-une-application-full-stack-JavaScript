@@ -36,14 +36,14 @@ function SessionForm() {
   } = useSubmit("Failed to save session");
 
   /**
-   * Redirige les utilisateurs non-admin
+   * Redirects non-admin users.
    */
   useEffect(() => {
     if (!user || !user.admin) navigate("/sessions");
   }, [user, navigate]);
 
   /**
-   * En mode édition précharge la session dans le formulaire
+   * In edit mode, preloads the session into the form.
    */
   useEffect(() => {
     if (!session) return;
@@ -56,9 +56,9 @@ function SessionForm() {
   }, [session]);
 
   /**
-   * Met à jour un champ du formulaire
+   * Updates a form field.
    *
-   * @param e - Évènement de changement émis par un input, select ou textarea.
+   * @param e - Change event emitted by an input, select, or textarea.
    */
   const handleChange = (
     e: React.ChangeEvent<
@@ -70,9 +70,9 @@ function SessionForm() {
   };
 
   /**
-   * Crée ou met à jour la session, puis redirige.
+   * Creates or updates the session, then redirects.
    *
-   * @param e - Événement de soumission du formulaire.
+   * @param e - Form submit event.
    */
   const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();

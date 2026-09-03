@@ -5,12 +5,12 @@ import axios from "axios";
 import { authService } from "../services/auth.service";
 
 /**
- * Charge les informations d'un utilisateur par son identifiant.
+ * Loads a user's information by id.
  *
- * @param id - Identifiant de l'utilisateur
+ * @param id - User id
  * @returns
- * - L'état de l'utilisateur (`userInfo`, `loading`, `error`)
- * - les actions `deleteUser` et `promoteToAdmin`.
+ * - User state (`userInfo`, `loading`, `error`)
+ * - `deleteUser` and `promoteToAdmin` actions.
  */
 export function useUserInfo(id: User["id"]) {
   const [userInfo, setUserInfo] = useState<User | null>(null);
@@ -19,7 +19,7 @@ export function useUserInfo(id: User["id"]) {
   const controllerRef = useRef<AbortController | null>(null);
 
   /**
-   * Récupère le profil et annule toute requête précédente en cours.
+   * Fetches the profile and cancels any previous request in flight.
    */
   const fetchUserInfo = async () => {
     if (!id || Number.isNaN(id)) {
@@ -45,7 +45,7 @@ export function useUserInfo(id: User["id"]) {
   };
 
   /**
-   * Recharge le profil à chaque changement d'`id` et annule la requête au démontage.
+   * Reloads the profile whenever `id` changes and cancels the request on unmount.
    */
   useEffect(() => {
     fetchUserInfo();
@@ -53,19 +53,19 @@ export function useUserInfo(id: User["id"]) {
   }, [id]);
 
   /**
-   * Supprime l'utilisateur courant.
+   * Deletes the current user.
    *
-   * @returns Une promesse résolue une fois la suppression effectuée.
+   * @returns A promise resolved once the deletion is done.
    */
   const deleteUser = async () => {
     await userService.delete(id);
   };
 
   /**
-   * Promeut l'utilisateur au rôle d'administrateur puis met à jour l'état local
-   * et l'utilisateur courant stocké côté client.
+   * Promotes the user to admin, then updates local state and the current
+   * user stored client-side.
    *
-   * @returns Une promesse résolue une fois l'état mis à jour.
+   * @returns A promise resolved once the state is updated.
    */
   const promoteToAdmin = async () => {
     const response = await userService.promoteToAdmin();

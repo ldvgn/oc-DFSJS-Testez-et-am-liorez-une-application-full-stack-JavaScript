@@ -3,6 +3,7 @@ import { DescriptionItem } from "./DescriptionItem";
 
 type SessionMetaProps = {
   session: Session;
+  /** Shows the date in long format (e.g. "Monday, January 5, 2026") instead of the short format. */
   longDate?: boolean;
   className?: string;
 };

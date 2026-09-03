@@ -4,9 +4,9 @@ import api from "./api";
 
 export const teacherService = {
   /**
-   * Récupère la liste des enseignants.
-   * @param signal - Signal d'annulation optionnel (AbortController).
-   * @returns Réponse axios contenant le tableau des enseignants.
+   * Fetches the list of teachers.
+   * @param signal - Optional abort signal (AbortController).
+   * @returns Axios response containing the array of teachers.
    */
   getAll: (signal?: AbortSignal): Promise<AxiosResponse<Teacher[]>> =>
     api.get<Teacher[]>("/teacher", { signal }),

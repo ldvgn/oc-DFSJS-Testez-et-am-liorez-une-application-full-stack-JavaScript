@@ -4,20 +4,20 @@ import api from "./api";
 
 export const sessionService = {
   /**
-   * Récupère toutes les sessions.
+   * Fetches all sessions.
    *
-   * @param signal - Signal d'annulation optionnel (AbortController).
-   * @returns Réponse axios contenant le tableau des sessions.
+   * @param signal - Optional abort signal (AbortController).
+   * @returns Axios response containing the array of sessions.
    */
   getAll: (signal?: AbortSignal): Promise<AxiosResponse<Session[]>> =>
     api.get<Session[]>("/session", { signal }),
 
   /**
-   * Récupère une session par son identifiant.
+   * Fetches a session by id.
    *
-   * @param sessionId - Identifiant de la session.
-   * @param signal - Signal d'annulation optionnel (AbortController).
-   * @returns Réponse axios contenant la session.
+   * @param sessionId - Session id.
+   * @param signal - Optional abort signal (AbortController).
+   * @returns Axios response containing the session.
    */
   getById: (
     sessionId: Session["id"],
@@ -26,20 +26,20 @@ export const sessionService = {
     api.get<Session>(`/session/${sessionId}`, { signal }),
 
   /**
-   * Supprime une session.
+   * Deletes a session.
    *
-   * @param sessionId - Identifiant de la session à supprimer.
-   * @returns Réponse axios de la requête DELETE.
+   * @param sessionId - Id of the session to delete.
+   * @returns Axios response of the DELETE request.
    */
   delete: (sessionId: Session["id"]): Promise<AxiosResponse> =>
     api.delete(`/session/${sessionId}`),
 
   /**
-   * Inscrit un utilisateur à une session.
+   * Registers a user for a session.
    *
-   * @param sessionId - Identifiant de la session.
-   * @param userId - Identifiant de l'utilisateur à inscrire.
-   * @returns Réponse axios de la requête POST.
+   * @param sessionId - Session id.
+   * @param userId - Id of the user to register.
+   * @returns Axios response of the POST request.
    */
   participate: (
     sessionId: Session["id"],
@@ -48,11 +48,11 @@ export const sessionService = {
     api.post(`/session/${sessionId}/participate/${userId}`),
 
   /**
-   * Désinscrit un utilisateur d'une session.
+   * Unregisters a user from a session.
    *
-   * @param sessionId - Identifiant de la session.
-   * @param userId - Identifiant de l'utilisateur à désinscrire.
-   * @returns Réponse axios de la requête DELETE.
+   * @param sessionId - Session id.
+   * @param userId - Id of the user to unregister.
+   * @returns Axios response of the DELETE request.
    */
   unparticipate: (
     sessionId: Session["id"],
@@ -61,20 +61,20 @@ export const sessionService = {
     api.delete(`/session/${sessionId}/participate/${userId}`),
 
   /**
-   * Crée une nouvelle session.
+   * Creates a new session.
    *
-   * @param data - Données du formulaire de session.
-   * @returns Réponse axios de la requête POST.
+   * @param data - Session form data.
+   * @returns Axios response of the POST request.
    */
   create: (data: SessionFormData): Promise<AxiosResponse<Session>> =>
     api.post<Session>("/session", data),
 
   /**
-   * Met à jour une session existante.
+   * Updates an existing session.
    *
-   * @param sessionId - Identifiant de la session à modifier.
-   * @param data - Données du formulaire de session.
-   * @returns Réponse axios de la requête PUT.
+   * @param sessionId - Id of the session to update.
+   * @param data - Session form data.
+   * @returns Axios response of the PUT request.
    */
   update: (
     sessionId: Session["id"],

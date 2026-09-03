@@ -8,6 +8,10 @@ const VARIANT_CLASSES: Record<LinkVariant, string> = {
 };
 
 interface TextLinkProps extends LinkProps {
+  /**
+   * `"primary"` (default): indigo text, for a link on a light background.
+   * `"inverted"`: white text, for a link on a dark background (e.g. navbar).
+   */
   variant?: LinkVariant;
 }
 

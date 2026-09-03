@@ -3,6 +3,7 @@ import { ElementType, ReactNode } from "react";
 interface CardProps {
   children: ReactNode;
   className?: string;
+  /** HTML element the card is rendered as (`div` by default). */
   as?: ElementType;
 }
 

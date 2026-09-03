@@ -4,9 +4,9 @@ import { Session } from "../types";
 import { sessionService } from "../services/session.service";
 
 /**
- * Hook de gestion des sessions : charge la liste au montage, permet d'en supprimer.
+ * Session management hook: loads the list on mount, allows deleting one.
  *
- * @returns `sessions` (liste), `loading`, `error`, et `deleteSession(id)`.
+ * @returns `sessions` (list), `loading`, `error`, and `deleteSession(id)`.
  */
 export function useSessions() {
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -15,8 +15,8 @@ export function useSessions() {
   const controllerRef = useRef<AbortController | null>(null);
 
   /**
-   * Récupère la liste des sessions.
-   * Annule la requête précédente, relance la requête, ignore le résultat si annulé.
+   * Fetches the list of sessions.
+   * Cancels the previous request, re-runs it, and ignores the result if cancelled.
    */
   const fetchSessions = async () => {
     controllerRef.current?.abort();
@@ -37,7 +37,7 @@ export function useSessions() {
   };
 
   /**
-   * Chargement initial : annule la requête en cours si le composant est démonté.
+   * Initial load: cancels the in-flight request if the component unmounts.
    */
   useEffect(() => {
     fetchSessions();
@@ -45,9 +45,9 @@ export function useSessions() {
   }, []);
 
   /**
-   * Supprime une session puis recharge la liste
+   * Deletes a session then reloads the list.
    *
-   * @param sessionId - Identifiant de la session à supprimer
+   * @param sessionId - Id of the session to delete.
    */
   const deleteSession = async (sessionId: Session["id"]) => {
     await sessionService.delete(sessionId);

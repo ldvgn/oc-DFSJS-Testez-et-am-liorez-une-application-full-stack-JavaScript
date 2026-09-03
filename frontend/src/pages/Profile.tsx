@@ -25,7 +25,7 @@ function Profile() {
   } = useSubmit("Failed to promote to admin");
 
   /**
-   * Demande confirmation, supprime le compte, déconnecte l'utilisateur puis le redirige vers la page de connexion.
+   * Asks for confirmation, deletes the account, logs the user out, then redirects to the login page.
    */
   const handleDeleteAccount = async () => {
     if (
@@ -46,7 +46,7 @@ function Profile() {
   };
 
   /**
-   * Promeut l'utilisateur courant au rôle d'administrateur.
+   * Promotes the current user to admin.
    */
   const handlePromoteAdmin = () => submit(promoteToAdmin);
 

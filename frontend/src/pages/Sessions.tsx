@@ -13,9 +13,9 @@ function Sessions() {
   const user = authService.getCurrentUser();
 
   /**
-   * Demande confirmation puis supprime la session, avec alerte en cas d'échec.
+   * Asks for confirmation then deletes the session, alerting on failure.
    *
-   * @param sessionId - Identifiant de la session à supprimer.
+   * @param sessionId - Id of the session to delete.
    */
   const handleDelete = async (sessionId: Session["id"]) => {
     if (!window.confirm("Are you sure you want to delete this session?")) {

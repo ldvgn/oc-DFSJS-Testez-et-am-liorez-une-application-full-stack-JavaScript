@@ -3,6 +3,10 @@ import type { ReactNode } from "react";
 type DescriptionItemProps = {
   label: string;
   children: ReactNode;
+  /**
+   * `"stacked"` (default): label above the value.
+   * `"inline"`: label and value on the same line (`Label: value`).
+   */
   layout?: "stacked" | "inline";
 };
 

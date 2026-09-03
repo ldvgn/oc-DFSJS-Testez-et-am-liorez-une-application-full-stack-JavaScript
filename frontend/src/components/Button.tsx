@@ -12,11 +12,11 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
 const BASE_CLASSES = "py-2 px-4 rounded-lg disabled:bg-gray-400";
 
 /**
- * Construit la liste de classes CSS d'un bouton, partagée par `Button` et `LinkButton`.
+ * Builds a button's CSS class list, shared by `Button` and `LinkButton`.
  *
- * @param variant - Style visuel du bouton (couleur).
- * @param className - Classes supplémentaires ajoutées par l'appelant.
- * @returns La chaîne de classes finale (base + variante + `className`).
+ * @param variant - Visual style of the button (color).
+ * @param className - Extra classes added by the caller.
+ * @returns The final class string (base + variant + `className`).
  */
 export function buttonClasses(variant: ButtonVariant, className?: string) {
   return [BASE_CLASSES, VARIANT_CLASSES[variant], className]
@@ -25,6 +25,7 @@ export function buttonClasses(variant: ButtonVariant, className?: string) {
 }
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  /** Visual style of the button (`"primary"` by default). */
   variant?: ButtonVariant;
 }
 

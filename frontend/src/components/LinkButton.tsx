@@ -2,6 +2,7 @@ import { Link, type LinkProps } from "react-router-dom";
 import { buttonClasses, type ButtonVariant } from "./Button";
 
 interface LinkButtonProps extends LinkProps {
+  /** Visual style of the button (`"primary"` by default). */
   variant?: ButtonVariant;
 }
 

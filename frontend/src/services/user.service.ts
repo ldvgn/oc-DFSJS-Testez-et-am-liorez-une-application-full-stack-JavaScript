@@ -4,11 +4,11 @@ import api from "./api";
 
 export const userService = {
   /**
-   * Récupère un utilisateur par son identifiant.
+   * Fetches a user by id.
    *
-   * @param userId - Identifiant de l'utilisateur.
-   * @param signal - Signal d'annulation optionnel (AbortController).
-   * @returns Réponse axios contenant l'utilisateur.
+   * @param userId - User id.
+   * @param signal - Optional abort signal (AbortController).
+   * @returns Axios response containing the user.
    */
   getById: (
     userId: User["id"],
@@ -17,18 +17,18 @@ export const userService = {
     api.get<User>(`/user/${userId}`, { signal }),
 
   /**
-   * Supprime un utilisateur.
+   * Deletes a user.
    *
-   * @param userId - Identifiant de l'utilisateur à supprimer.
-   * @returns Réponse axios de la requête DELETE.
+   * @param userId - Id of the user to delete.
+   * @returns Axios response of the DELETE request.
    */
   delete: (userId: User["id"]): Promise<AxiosResponse> =>
     api.delete(`/user/${userId}`),
 
   /**
-   * Promeut l'utilisateur au rôle d'administrateur.
+   * Promotes the user to admin.
    *
-   * @returns Réponse axios contenant l'utilisateur mis à jour.
+   * @returns Axios response containing the updated user.
    */
   promoteToAdmin: (): Promise<AxiosResponse<User>> =>
     api.post<User>("/user/promote-admin"),

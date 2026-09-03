@@ -13,6 +13,7 @@ const BASE_CLASSES =
   "inline-block px-3 py-1 rounded-full text-sm font-semibold";
 
 interface BadgeProps {
+  /** Badge color (`"gray"` by default). */
   variant?: BadgeVariant;
   className?: string;
   children: ReactNode;
