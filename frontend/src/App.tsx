@@ -13,6 +13,7 @@ import SessionDetail from "./pages/SessionDetail";
 import SessionForm from "./pages/SessionForm";
 import Profile from "./pages/Profile";
 import { authService } from "./services/auth.service";
+import { NotFound } from "./pages/NotFound";
 
 function PrivateRoute({ children }: { children: ReactNode }) {
   const isAuthenticated = authService.isAuthenticated();
@@ -25,6 +26,7 @@ function App() {
       <div className="min-h-screen flex flex-col bg-gray-100">
         <Navbar />
         <Routes>
+          <Route path="*" element={<NotFound />} />
           <Route path="/" element={<Navigate to="/sessions" />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
