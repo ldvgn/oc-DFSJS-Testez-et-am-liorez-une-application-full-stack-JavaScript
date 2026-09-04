@@ -1,194 +1,122 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import api from '../services/api';
-import { authService } from '../services/auth.service';
-import { Session } from '../types';
+import { useParams, useNavigate } from "react-router-dom";
+import { authService } from "../services/auth.service";
+import { useSession } from "../hooks/useSession";
+import { Card } from "../components/Card";
+import { LinkButton } from "../components/LinkButton";
+import { Button } from "../components/Button";
+import { LoadingState } from "../components/LoadingState";
+import { Alert } from "../components/Alert";
+import { SessionMeta } from "../components/SessionMeta";
+import { logger } from "../utils/logger";
+import { notify } from "../utils/notify";
 
 function SessionDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [session, setSession] = useState<any>(null);
-  const [loading, setLoading] = useState<any>(true);
-  const [error, setError] = useState<any>('');
-  const user = authService.getCurrentUser();
-  const token = authService.getToken();
+  const { session, loading, error, participate, unparticipate, deleteSession } =
+    useSession(Number(id));
 
-  useEffect(() => {
-    fetchSession();
-  }, [id]);
+  const user = authService.getCurrentUser()!;
 
-  const fetchSession = async (): Promise<any> => {
+  /**
+   * Registers the current user for the session, alerting on failure.
+   */
+  const handleParticipate = async () => {
     try {
-      setLoading(true);
-      const response = await api.get<Session>(`/session/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      await participate(user.id);
+    } catch (err) {
+      notify.error("Failed to join session");
+      logger.error("msg", err, {
+        sessionId: session?.id,
+        user: `${user.firstName} ${user.lastName} (${user.id})`,
       });
-      setSession(response.data);
-    } catch (err: any) {
-      setError('Failed to load session details');
-      console.error(err);
-    } finally {
-      setLoading(false);
     }
   };
 
-  const handleParticipate = async (): Promise<any> => {
+  /**
+   * Unregisters the current user from the session, alerting on failure.
+   */
+  const handleUnparticipate = async () => {
     try {
-      await api.post(
-        `/session/${id}/participate/${user.id}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      fetchSession();
-    } catch (err: any) {
-      alert('Failed to join session');
-      console.error(err);
-    }
-  };
-
-  const handleUnparticipate = async (): Promise<any> => {
-    try {
-      await api.delete(`/session/${id}/participate/${user.id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      await unparticipate(user.id);
+    } catch (err) {
+      notify.error("Failed to leave session");
+      logger.error("msg", err, {
+        sessionId: session?.id,
+        user: `${user.firstName} ${user.lastName} (${user.id})`,
       });
-      fetchSession();
-    } catch (err: any) {
-      alert('Failed to leave session');
-      console.error(err);
     }
   };
 
-  const handleDelete = async (): Promise<any> => {
-    if (!window.confirm('Are you sure you want to delete this session?')) {
+  /**
+   * Asks for confirmation, deletes the session, then redirects to the list.
+   */
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this session?")) {
       return;
     }
 
     try {
-      await api.delete(`/session/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      await deleteSession();
+      navigate("/sessions");
+    } catch (err) {
+      logger.error("Failed to delete session", err, {
+        sessionId: session?.id,
+        user: `${user.firstName} ${user.lastName} (${user.id})`,
       });
-      navigate('/sessions');
-    } catch (err: any) {
-      alert('Failed to delete session');
-      console.error(err);
+      notify.error("Failed to delete session");
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-xl text-gray-600">Loading session...</div>
-      </div>
-    );
-  }
+  if (loading) return <LoadingState label="Loading session..." />;
 
   if (error || !session) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          {error || 'Session not found'}
-        </div>
-      </div>
-    );
+    return <Alert message={error || "Session not found"} />;
   }
 
   const isParticipating = session.users.includes(user.id);
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
-      <div className="container mx-auto px-4 max-w-3xl">
-        <div className="bg-white rounded-lg shadow-md p-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-6">
-            {session.name}
-          </h1>
+    <main>
+      <Card className="max-w-3xl mx-auto">
+        <h1 className="mb-8">{session.name}</h1>
 
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-gray-700 mb-2">Details</h2>
-            <div className="space-y-2 text-gray-600">
-              <p>
-                <strong>Date:</strong>{' '}
-                {new Date(session.date).toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </p>
-              <p>
-                <strong>Teacher:</strong> {session.teacher.firstName}{' '}
-                {session.teacher.lastName}
-              </p>
-              <p>
-                <strong>Participants:</strong> {session.users.length}
-              </p>
-            </div>
-          </div>
+        <h2 className="mb-2">Details</h2>
+        <SessionMeta session={session} longDate className="mb-6" />
 
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-gray-700 mb-2">
-              Description
-            </h2>
-            <p className="text-gray-600 whitespace-pre-wrap">
-              {session.description}
-            </p>
-          </div>
+        <h2 className="mb-2">Description</h2>
+        <p className="text-gray-700 mb-6 whitespace-pre-wrap">
+          {session.description}
+        </p>
 
-          <div className="flex space-x-4">
-            {user.admin ? (
-              <>
-                <button
-                  onClick={() => navigate(`/sessions/edit/${id}`)}
-                  className="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={handleDelete}
-                  className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700"
-                >
-                  Delete
-                </button>
-              </>
-            ) : (
-              <>
-                {isParticipating ? (
-                  <button
-                    onClick={handleUnparticipate}
-                    className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700"
-                  >
-                    Leave Session
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleParticipate}
-                    className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
-                  >
-                    Join Session
-                  </button>
-                )}
-              </>
-            )}
+        <div className="flex space-x-2">
+          {user.admin ? (
+            <>
+              <LinkButton to={`/sessions/edit/${id}`}>Edit</LinkButton>
+              <Button onClick={handleDelete} variant="danger">
+                Delete
+              </Button>
+            </>
+          ) : (
+            <>
+              {isParticipating ? (
+                <Button onClick={handleUnparticipate} variant="danger">
+                  Leave Session
+                </Button>
+              ) : (
+                <Button onClick={handleParticipate} variant="success">
+                  Join Session
+                </Button>
+              )}
+            </>
+          )}
 
-            <button
-              onClick={() => navigate('/sessions')}
-              className="bg-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-400"
-            >
-              Back to Sessions
-            </button>
-          </div>
+          <LinkButton to={`/sessions`} variant="secondary">
+            Back to Sessions
+          </LinkButton>
         </div>
-      </div>
-    </div>
+      </Card>
+    </main>
   );
 }
 

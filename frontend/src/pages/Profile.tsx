@@ -1,192 +1,125 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
-import { authService } from '../services/auth.service';
+import { useNavigate } from "react-router-dom";
+import { authService } from "../services/auth.service";
+import { useUserInfo } from "../hooks/useUserInfo";
+import { useSubmit } from "../hooks/useSubmit";
+import { LoadingState } from "../components/LoadingState";
+import { Alert } from "../components/Alert";
+import { Card } from "../components/Card";
+import { DescriptionItem } from "../components/DescriptionItem";
+import { Badge } from "../components/Badge";
+import { Button } from "../components/Button";
+import { LinkButton } from "../components/LinkButton";
+import { logger } from "../utils/logger";
+import { notify } from "../utils/notify";
 
 function Profile() {
   const navigate = useNavigate();
-  const [userInfo, setUserInfo] = useState<any>(null);
-  const [loading, setLoading] = useState<any>(true);
-  const [error, setError] = useState<any>('');
-  const [promoteLoading, setPromoteLoading] = useState<any>(false);
-  const [promoteError, setPromoteError] = useState<any>('');
-  const user = authService.getCurrentUser();
-  const token = authService.getToken();
-  const isDev = (import.meta as any).env?.DEV === true;
+  const user = authService.getCurrentUser()!;
+  const isDev = import.meta.env.DEV;
 
-  useEffect(() => {
-    if (user) {
-      fetchUserInfo();
-    }
-  }, []);
+  const { userInfo, loading, error, deleteUser, promoteToAdmin } = useUserInfo(
+    user.id,
+  );
+  const {
+    loading: promoteLoading,
+    error: promoteError,
+    submit,
+  } = useSubmit("Failed to promote to admin");
 
-  const fetchUserInfo = async (): Promise<any> => {
-    try {
-      setLoading(true);
-      const response = await api.get(`/user/${user.id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setUserInfo(response.data);
-    } catch (err: any) {
-      setError('Failed to load user information');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteAccount = async (): Promise<any> => {
-    if (!window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+  /**
+   * Asks for confirmation, deletes the account, logs the user out, then redirects to the login page.
+   */
+  const handleDeleteAccount = async () => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete your account? This action cannot be undone.",
+      )
+    ) {
       return;
     }
 
     try {
-      await api.delete(`/user/${user.id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await deleteUser();
       authService.logout();
-      navigate('/login');
-    } catch (err: any) {
-      alert('Failed to delete account');
-      console.error(err);
+      navigate("/login");
+    } catch (err) {
+      notify.error("Failed to delete account");
+      logger.error("msg", err, {
+        user: `${user.firstName} ${user.lastName} (${user.id})`,
+      });
     }
   };
 
-  const handlePromoteAdmin = async (): Promise<any> => {
-    try {
-      setPromoteError('');
-      setPromoteLoading(true);
-      const response = await api.post(
-        '/user/promote-admin',
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-      setUserInfo(response.data);
-      authService.updateCurrentUser({ admin: response.data.admin });
-    } catch (err: any) {
-      setPromoteError('Failed to promote to admin');
-      console.error(err);
-    } finally {
-      setPromoteLoading(false);
-    }
-  };
+  /**
+   * Promotes the current user to admin.
+   */
+  const handlePromoteAdmin = () => submit(promoteToAdmin);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-xl text-gray-600">Loading profile...</div>
-      </div>
-    );
-  }
+  if (loading) return <LoadingState label="Loading profile..." />;
 
   if (error || !userInfo) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          {error || 'Failed to load profile'}
-        </div>
-      </div>
-    );
+    return <Alert message={error || "Failed to load profile"} />;
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
-      <div className="container mx-auto px-4 max-w-2xl">
-        <div className="bg-white rounded-lg shadow-md p-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-8">My Profile</h1>
+    <main>
+      <Card className="max-w-3xl mx-auto">
+        <h1 className="mb-8">My Profile</h1>
+        <dl className="divide-y divide-gray-200 mb-8">
+          <DescriptionItem label="First Name">
+            {userInfo.firstName}
+          </DescriptionItem>
+          <DescriptionItem label="Last Name">
+            {userInfo.lastName}
+          </DescriptionItem>
+          <DescriptionItem label="Email">{userInfo.email}</DescriptionItem>
+          <DescriptionItem label="Account Type">
+            {userInfo.admin ? (
+              <Badge variant="purple">Administrator</Badge>
+            ) : (
+              <Badge variant="blue">User</Badge>
+            )}
+            {isDev && !userInfo.admin && (
+              <div className="mt-3">
+                <Button
+                  onClick={handlePromoteAdmin}
+                  disabled={promoteLoading}
+                  className="text-base"
+                  variant="success"
+                >
+                  {promoteLoading ? "Promoting..." : "Promote to Admin (Dev)"}
+                </Button>
 
-          <div className="space-y-4 mb-8">
-            <div className="border-b pb-4">
-              <label className="block text-gray-600 text-sm font-semibold mb-1">
-                First Name
-              </label>
-              <p className="text-lg text-gray-800">{userInfo.firstName}</p>
-            </div>
-
-            <div className="border-b pb-4">
-              <label className="block text-gray-600 text-sm font-semibold mb-1">
-                Last Name
-              </label>
-              <p className="text-lg text-gray-800">{userInfo.lastName}</p>
-            </div>
-
-            <div className="border-b pb-4">
-              <label className="block text-gray-600 text-sm font-semibold mb-1">
-                Email
-              </label>
-              <p className="text-lg text-gray-800">{userInfo.email}</p>
-            </div>
-
-            <div className="border-b pb-4">
-              <label className="block text-gray-600 text-sm font-semibold mb-1">
-                Account Type
-              </label>
-              <p className="text-lg text-gray-800">
-                {userInfo.admin ? (
-                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-semibold">
-                    Administrator
-                  </span>
-                ) : (
-                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
-                    User
-                  </span>
+                {promoteError && (
+                  <div className="mt-2 text-sm text-red-600">
+                    {promoteError}
+                  </div>
                 )}
-              </p>
-              {isDev && !userInfo.admin ? (
-                <div className="mt-3">
-                  <button
-                    onClick={handlePromoteAdmin}
-                    disabled={promoteLoading}
-                    className="bg-emerald-600 text-white py-2 px-4 rounded-lg hover:bg-emerald-700 disabled:opacity-60"
-                  >
-                    {promoteLoading ? 'Promoting...' : 'Promote to Admin (Dev)'}
-                  </button>
-                  {promoteError ? (
-                    <div className="mt-2 text-sm text-red-600">{promoteError}</div>
-                  ) : null}
-                </div>
-              ) : null}
-            </div>
+              </div>
+            )}
+          </DescriptionItem>
 
-            <div className="border-b pb-4">
-              <label className="block text-gray-600 text-sm font-semibold mb-1">
-                Member Since
-              </label>
-              <p className="text-lg text-gray-800">
-                {new Date(userInfo.createdAt).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </p>
-            </div>
-          </div>
+          <DescriptionItem label="Member Since">
+            {userInfo.createdAt
+              ? new Date(userInfo.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })
+              : "—"}
+          </DescriptionItem>
+        </dl>
 
-          <div className="flex space-x-4">
-            <button
-              onClick={() => navigate('/sessions')}
-              className="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700"
-            >
-              Back to Sessions
-            </button>
-            <button
-              onClick={handleDeleteAccount}
-              className="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700"
-            >
-              Delete Account
-            </button>
-          </div>
+        <div className="flex space-x-2">
+          <LinkButton to={`/sessions`} className="flex-1 text-center">
+            Back to Sessions
+          </LinkButton>
+          <Button onClick={handleDeleteAccount} variant="danger">
+            Delete Account
+          </Button>
         </div>
-      </div>
-    </div>
+      </Card>
+    </main>
   );
 }
 

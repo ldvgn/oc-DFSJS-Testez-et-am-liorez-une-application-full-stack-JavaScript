@@ -1,57 +1,69 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { authService } from '../services/auth.service';
+import { Link, useNavigate } from "react-router-dom";
+import { authService } from "../services/auth.service";
+import { Button } from "./Button";
+import { TextLink } from "./TextLink";
 
-function Navbar(props: any) {
+function Navbar() {
   const navigate = useNavigate();
   const user = authService.getCurrentUser();
   const isAuthenticated = authService.isAuthenticated();
 
-  const handleLogout = (): any => {
+  const handleLogout = () => {
     authService.logout();
-    navigate('/login');
+    navigate("/login");
   };
 
   return (
     <nav className="bg-indigo-600 text-white shadow-lg">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex justify-between items-center">
-          <Link to="/" className="text-2xl font-bold">
-            Yoga Studio
-          </Link>
+      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        <Link to="/" className="text-2xl font-bold">
+          Yoga Studio
+        </Link>
 
-          <div className="flex items-center space-x-6">
-            {isAuthenticated ? (
-              <>
-                <Link to="/sessions" className="hover:text-indigo-200">
+        <ul className="flex items-center space-x-6">
+          {isAuthenticated ? (
+            <>
+              <li>
+                <TextLink to="/sessions" variant="inverted">
                   Sessions
-                </Link>
-                {user && user.admin ? (
-                  <Link to="/sessions/create" className="hover:text-indigo-200">
+                </TextLink>
+              </li>
+              {user && user.admin && (
+                <li>
+                  <TextLink to="/sessions/create" variant="inverted">
                     Create Session
-                  </Link>
-                ) : null}
-                <Link to="/profile" className="hover:text-indigo-200">
+                  </TextLink>
+                </li>
+              )}
+              <li>
+                <TextLink to="/profile" variant="inverted">
                   Profile
-                </Link>
-                <button
+                </TextLink>
+              </li>
+              <li>
+                <Button
                   onClick={handleLogout}
-                  className="bg-indigo-700 hover:bg-indigo-800 px-4 py-2 rounded"
+                  className="bg-indigo-700 hover:bg-indigo-800"
                 >
                   Logout
-                </button>
-              </>
-            ) : (
-              <>
-                <Link to="/login" className="hover:text-indigo-200">
+                </Button>
+              </li>
+            </>
+          ) : (
+            <>
+              <li>
+                <TextLink to="/login" variant="inverted">
                   Login
-                </Link>
-                <Link to="/register" className="hover:text-indigo-200">
+                </TextLink>
+              </li>
+              <li>
+                <TextLink to="/register" variant="inverted">
                   Register
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
+                </TextLink>
+              </li>
+            </>
+          )}
+        </ul>
       </div>
     </nav>
   );
