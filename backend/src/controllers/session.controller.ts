@@ -1,8 +1,6 @@
-import { Response } from 'express';
-import { PrismaClient } from '@prisma/client';
-import { AuthRequest } from '../middleware/auth.middleware';
-
-const prisma = new PrismaClient();
+import { Response } from "express";
+import { AuthRequest } from "../middleware/auth.middleware";
+import prisma from "../prisma/client";
 
 export class SessionController {
   async getAll(req: AuthRequest, res: Response) {
@@ -35,8 +33,8 @@ export class SessionController {
 
       return res.status(200).json(response);
     } catch (error: any) {
-      console.error('Get sessions error:', error);
-      return res.status(500).json({ message: 'Internal server error' });
+      console.error("Get sessions error:", error);
+      return res.status(500).json({ message: "Internal server error" });
     }
   }
 
@@ -45,13 +43,13 @@ export class SessionController {
       const { id } = req.params as { id: string };
 
       if (!id) {
-        return res.status(400).json({ message: 'Session ID is required' });
+        return res.status(400).json({ message: "Session ID is required" });
       }
 
       const sessionId = parseInt(id);
 
       if (isNaN(sessionId)) {
-        return res.status(400).json({ message: 'Invalid session ID' });
+        return res.status(400).json({ message: "Invalid session ID" });
       }
 
       const session = await prisma.session.findUnique({
@@ -67,7 +65,7 @@ export class SessionController {
       });
 
       if (!session) {
-        return res.status(404).json({ message: 'Session not found' });
+        return res.status(404).json({ message: "Session not found" });
       }
 
       const response: any = {
@@ -87,8 +85,8 @@ export class SessionController {
 
       return res.status(200).json(response);
     } catch (error: any) {
-      console.error('Get session error:', error);
-      return res.status(500).json({ message: 'Internal server error' });
+      console.error("Get session error:", error);
+      return res.status(500).json({ message: "Internal server error" });
     }
   }
 
@@ -97,16 +95,16 @@ export class SessionController {
       const { name, date, description, teacherId } = req.body;
 
       if (!name) {
-        return res.status(400).json({ message: 'Name is required' });
+        return res.status(400).json({ message: "Name is required" });
       }
       if (!date) {
-        return res.status(400).json({ message: 'Date is required' });
+        return res.status(400).json({ message: "Date is required" });
       }
       if (!description) {
-        return res.status(400).json({ message: 'Description is required' });
+        return res.status(400).json({ message: "Description is required" });
       }
       if (!teacherId) {
-        return res.status(400).json({ message: 'Teacher ID is required' });
+        return res.status(400).json({ message: "Teacher ID is required" });
       }
 
       const user = await prisma.user.findUnique({
@@ -114,7 +112,7 @@ export class SessionController {
       });
 
       if (!user || !user.admin) {
-        return res.status(403).json({ message: 'Admin access required' });
+        return res.status(403).json({ message: "Admin access required" });
       }
 
       const teacher = await prisma.teacher.findUnique({
@@ -122,7 +120,7 @@ export class SessionController {
       });
 
       if (!teacher) {
-        return res.status(404).json({ message: 'Teacher not found' });
+        return res.status(404).json({ message: "Teacher not found" });
       }
 
       const session = await prisma.session.create({
@@ -155,8 +153,8 @@ export class SessionController {
 
       return res.status(201).json(response);
     } catch (error: any) {
-      console.error('Create session error:', error);
-      return res.status(500).json({ message: 'Internal server error' });
+      console.error("Create session error:", error);
+      return res.status(500).json({ message: "Internal server error" });
     }
   }
 
@@ -166,13 +164,13 @@ export class SessionController {
       const { name, date, description, teacherId } = req.body;
 
       if (!id) {
-        return res.status(400).json({ message: 'Session ID is required' });
+        return res.status(400).json({ message: "Session ID is required" });
       }
 
       const sessionId = parseInt(id);
 
       if (isNaN(sessionId)) {
-        return res.status(400).json({ message: 'Invalid session ID' });
+        return res.status(400).json({ message: "Invalid session ID" });
       }
 
       const user = await prisma.user.findUnique({
@@ -180,7 +178,7 @@ export class SessionController {
       });
 
       if (!user || !user.admin) {
-        return res.status(403).json({ message: 'Admin access required' });
+        return res.status(403).json({ message: "Admin access required" });
       }
 
       const existingSession = await prisma.session.findUnique({
@@ -188,7 +186,7 @@ export class SessionController {
       });
 
       if (!existingSession) {
-        return res.status(404).json({ message: 'Session not found' });
+        return res.status(404).json({ message: "Session not found" });
       }
 
       const updateData: any = {};
@@ -200,7 +198,7 @@ export class SessionController {
           where: { id: teacherId },
         });
         if (!teacher) {
-          return res.status(404).json({ message: 'Teacher not found' });
+          return res.status(404).json({ message: "Teacher not found" });
         }
         updateData.teacherId = teacherId;
       }
@@ -235,8 +233,8 @@ export class SessionController {
 
       return res.status(200).json(response);
     } catch (error: any) {
-      console.error('Update session error:', error);
-      return res.status(500).json({ message: 'Internal server error' });
+      console.error("Update session error:", error);
+      return res.status(500).json({ message: "Internal server error" });
     }
   }
 
@@ -245,13 +243,13 @@ export class SessionController {
       const { id } = req.params as { id: string };
 
       if (!id) {
-        return res.status(400).json({ message: 'Session ID is required' });
+        return res.status(400).json({ message: "Session ID is required" });
       }
 
       const sessionId = parseInt(id);
 
       if (isNaN(sessionId)) {
-        return res.status(400).json({ message: 'Invalid session ID' });
+        return res.status(400).json({ message: "Invalid session ID" });
       }
 
       const user = await prisma.user.findUnique({
@@ -259,7 +257,7 @@ export class SessionController {
       });
 
       if (!user || !user.admin) {
-        return res.status(403).json({ message: 'Admin access required' });
+        return res.status(403).json({ message: "Admin access required" });
       }
 
       const existingSession = await prisma.session.findUnique({
@@ -267,39 +265,39 @@ export class SessionController {
       });
 
       if (!existingSession) {
-        return res.status(404).json({ message: 'Session not found' });
+        return res.status(404).json({ message: "Session not found" });
       }
 
       await prisma.session.delete({
         where: { id: sessionId },
       });
 
-      return res.status(200).json({ message: 'Session deleted successfully' });
+      return res.status(200).json({ message: "Session deleted successfully" });
     } catch (error: any) {
-      console.error('Delete session error:', error);
-      return res.status(500).json({ message: 'Internal server error' });
+      console.error("Delete session error:", error);
+      return res.status(500).json({ message: "Internal server error" });
     }
   }
 
   async participate(req: AuthRequest, res: Response) {
     try {
-      const { id, userId } = req.params as { id: string, userId: string };
+      const { id, userId } = req.params as { id: string; userId: string };
 
       if (!id) {
-        return res.status(400).json({ message: 'Session ID is required' });
+        return res.status(400).json({ message: "Session ID is required" });
       }
       if (!userId) {
-        return res.status(400).json({ message: 'User ID is required' });
+        return res.status(400).json({ message: "User ID is required" });
       }
 
       const sessionId = parseInt(id);
       const participantUserId = parseInt(userId);
 
       if (isNaN(sessionId)) {
-        return res.status(400).json({ message: 'Invalid session ID' });
+        return res.status(400).json({ message: "Invalid session ID" });
       }
       if (isNaN(participantUserId)) {
-        return res.status(400).json({ message: 'Invalid user ID' });
+        return res.status(400).json({ message: "Invalid user ID" });
       }
 
       const session = await prisma.session.findUnique({
@@ -307,7 +305,7 @@ export class SessionController {
       });
 
       if (!session) {
-        return res.status(404).json({ message: 'Session not found' });
+        return res.status(404).json({ message: "Session not found" });
       }
 
       const user = await prisma.user.findUnique({
@@ -315,20 +313,23 @@ export class SessionController {
       });
 
       if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(404).json({ message: "User not found" });
       }
 
-      const existingParticipation = await prisma.sessionParticipation.findUnique({
-        where: {
-          sessionId_userId: {
-            sessionId,
-            userId: participantUserId,
+      const existingParticipation =
+        await prisma.sessionParticipation.findUnique({
+          where: {
+            sessionId_userId: {
+              sessionId,
+              userId: participantUserId,
+            },
           },
-        },
-      });
+        });
 
       if (existingParticipation) {
-        return res.status(400).json({ message: 'User already participating in this session' });
+        return res
+          .status(400)
+          .json({ message: "User already participating in this session" });
       }
 
       await prisma.sessionParticipation.create({
@@ -338,32 +339,34 @@ export class SessionController {
         },
       });
 
-      return res.status(200).json({ message: 'Successfully joined the session' });
+      return res
+        .status(200)
+        .json({ message: "Successfully joined the session" });
     } catch (error: any) {
-      console.error('Participate error:', error);
-      return res.status(500).json({ message: 'Internal server error' });
+      console.error("Participate error:", error);
+      return res.status(500).json({ message: "Internal server error" });
     }
   }
 
   async unparticipate(req: AuthRequest, res: Response) {
     try {
-      const { id, userId } = req.params as { id: string, userId: string };
+      const { id, userId } = req.params as { id: string; userId: string };
 
       if (!id) {
-        return res.status(400).json({ message: 'Session ID is required' });
+        return res.status(400).json({ message: "Session ID is required" });
       }
       if (!userId) {
-        return res.status(400).json({ message: 'User ID is required' });
+        return res.status(400).json({ message: "User ID is required" });
       }
 
       const sessionId = parseInt(id);
       const participantUserId = parseInt(userId);
 
       if (isNaN(sessionId)) {
-        return res.status(400).json({ message: 'Invalid session ID' });
+        return res.status(400).json({ message: "Invalid session ID" });
       }
       if (isNaN(participantUserId)) {
-        return res.status(400).json({ message: 'Invalid user ID' });
+        return res.status(400).json({ message: "Invalid user ID" });
       }
 
       const participation = await prisma.sessionParticipation.findUnique({
@@ -376,7 +379,7 @@ export class SessionController {
       });
 
       if (!participation) {
-        return res.status(404).json({ message: 'Participation not found' });
+        return res.status(404).json({ message: "Participation not found" });
       }
 
       await prisma.sessionParticipation.delete({
@@ -388,10 +391,10 @@ export class SessionController {
         },
       });
 
-      return res.status(200).json({ message: 'Successfully left the session' });
+      return res.status(200).json({ message: "Successfully left the session" });
     } catch (error: any) {
-      console.error('Unparticipate error:', error);
-      return res.status(500).json({ message: 'Internal server error' });
+      console.error("Unparticipate error:", error);
+      return res.status(500).json({ message: "Internal server error" });
     }
   }
 }
