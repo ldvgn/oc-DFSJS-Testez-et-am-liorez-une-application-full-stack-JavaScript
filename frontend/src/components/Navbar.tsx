@@ -28,13 +28,13 @@ function Navbar() {
                   Sessions
                 </TextLink>
               </li>
-              {user && user.admin ? (
+              {user && user.admin && (
                 <li>
                   <TextLink to="/sessions/create" variant="inverted">
                     Create Session
                   </TextLink>
                 </li>
-              ) : null}
+              )}
               <li>
                 <TextLink to="/profile" variant="inverted">
                   Profile
