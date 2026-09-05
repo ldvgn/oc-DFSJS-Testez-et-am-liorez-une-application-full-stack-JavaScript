@@ -1,7 +1,9 @@
+import "express-async-errors";
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import routes from "./routes";
+import { errorHandler } from "./middleware/error.middleware";
 
 dotenv.config();
 
@@ -20,6 +22,9 @@ app.use("/api", routes);
 app.get("/api/health", (req, res) => {
   res.status(200).json({ status: "ok", message: "Yoga Studio API is running" });
 });
+
+// Must be registered after all routes to catch their errors
+app.use(errorHandler);
 
 // Start server
 app.listen(PORT, () => {
