@@ -1,7 +1,9 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import routes from './routes';
+import "express-async-errors";
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import routes from "./routes";
+import { errorHandler } from "./middleware/error.middleware";
 
 dotenv.config();
 
@@ -14,17 +16,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use(routes);
+app.use("/api", routes);
 
 // Health check
-app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'ok', message: 'Yoga Studio API is running' });
+app.get("/api/health", (req, res) => {
+  res.status(200).json({ status: "ok", message: "Yoga Studio API is running" });
 });
+
+// Must be registered after all routes to catch their errors
+app.use(errorHandler);
 
 // Start server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
 });
 
 export default app;
