@@ -26,4 +26,22 @@ export const userRepository = {
    */
   create: (data: Prisma.UserUncheckedCreateInput) =>
     prisma.user.create({ data }),
+
+  /**
+   * Delete a user by id.
+   *
+   * @param id The user id.
+   * @returns A promise of the deleted user.
+   */
+  delete: (id: number) => prisma.user.delete({ where: { id } }),
+
+  /**
+   * Set the `admin` flag on a user.
+   *
+   * @param id The user id.
+   * @param admin The new value of the `admin` flag.
+   * @returns A promise of the updated user.
+   */
+  updateAdmin: (id: number, admin: boolean) =>
+    prisma.user.update({ where: { id }, data: { admin } }),
 };
