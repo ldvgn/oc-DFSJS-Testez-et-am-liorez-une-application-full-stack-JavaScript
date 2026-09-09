@@ -11,4 +11,4 @@ userRouter.get("/:id", (req, res) => userController.getById(req, res));
 userRouter.post("/promote-admin", (req, res) =>
   userController.promoteSelfToAdmin(req, res),
 );
-userRouter.delete("/:id", (req, res) => userController.delete(req, res));
+userRouter.delete("/:id", (req, res) => userController.remove(req, res));

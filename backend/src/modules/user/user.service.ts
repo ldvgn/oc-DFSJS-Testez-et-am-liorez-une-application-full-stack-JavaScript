@@ -1,64 +1,84 @@
 import { User } from "@prisma/client";
-import { NotFoundError } from "../../commons/errors/http-error";
-import { userRepository } from "./user.repository";
+import { ForbiddenError, NotFoundError } from "../../commons/errors/http-error";
+import { UserRepository } from "./user.repository";
+import { UserResponse, UserResponseSchema } from "./user.dto";
 
 /**
- * Map a user entity to the API response shape (password excluded).
+ * Business logic for the `user` domain.
  *
- * @param user The user entity.
- * @returns A plain object with the public user fields.
+ * Owns the user repository and is the only layer that turns a missing row into a {@link NotFoundError}.
  */
-const formatUserResponse = (user: User) => ({
-  id: user.id,
-  email: user.email,
-  firstName: user.firstName,
-  lastName: user.lastName,
-  admin: user.admin,
-  createdAt: user.createdAt,
-  updatedAt: user.updatedAt,
-});
+export class UserService {
+  constructor(private readonly repo = new UserRepository()) {}
 
-export const userService = {
   /**
-   * Fetch a single user by id, formatted for the API.
+   * Fetch a single user by id.
    *
    * @param id The user id.
    * @returns The formatted user.
-   * @throws NotFoundError When no user matches the id.
    */
-  async getById(id: number) {
-    const user = await userRepository.findOne(id);
-    if (!user) throw new NotFoundError("User not found");
-
-    return formatUserResponse(user);
-  },
+  async getById(id: number): Promise<UserResponse> {
+    return this.toResponse(await this.getUserOrThrow(id));
+  }
 
   /**
-   * Delete a user by id.
+   * Delete a user account.
    *
    * @param id The user id.
-   * @throws NotFoundError When no user matches the id.
+   *
+   * @throws {NotFoundError} When the account does not exist.
    */
-  async delete(id: number) {
-    const user = await userRepository.findOne(id);
-    if (!user) throw new NotFoundError("User not found");
-
-    await userRepository.delete(id);
-  },
+  async remove(id: number): Promise<void> {
+    await this.getUserOrThrow(id);
+    await this.repo.delete(id);
+  }
 
   /**
-   * Grant admin rights to a user; no-op if they are already an admin.
+   * Grant admin rights to the calling user. Development environment only.
    *
-   * @param id The user id.
+   * @param userId The user id.
    * @returns The formatted user, now an admin.
-   * @throws NotFoundError When no user matches the id.
+   *
+   * @throws {ForbiddenError} When `NODE_ENV` is not `development`.
+   * @throws {NotFoundError} When the user does not exist.
    */
-  async promoteToAdmin(id: number) {
-    const user = await userRepository.findOne(id);
-    if (!user) throw new NotFoundError("User not found");
-    if (user.admin) return formatUserResponse(user);
+  async promoteSelfToAdmin(userId: number): Promise<UserResponse> {
+    const isDev = (process.env.NODE_ENV || "development") === "development";
+    if (!isDev)
+      throw new ForbiddenError(
+        "Admin self-promotion is only available in development",
+      );
 
-    const updated = await userRepository.updateAdmin(id, true);
-    return formatUserResponse(updated);
-  },
-};
+    const user = await this.getUserOrThrow(userId);
+    if (user.admin) return this.toResponse(user);
+
+    const updatedUser = await this.repo.updateAdmin(userId, true);
+
+    return this.toResponse(updatedUser);
+  }
+
+  /**
+   * Load a user by id or fail.
+   *
+   * @param id The user id.
+   * @returns The matching user.
+   *
+   * @throws {NotFoundError} When no user matches the id.
+   */
+  private async getUserOrThrow(id: number): Promise<User> {
+    const user = await this.repo.findOne(id);
+    if (!user) throw new NotFoundError("User not found");
+
+    return user;
+  }
+
+  /**
+   * Map a user entity to the API response shape (password excluded).
+   *
+   * @param user The user entity.
+   * @returns A plain object with the public user fields.
+   */
+  private toResponse(user: User): UserResponse {
+    return UserResponseSchema.parse(user);
+  }
+}
