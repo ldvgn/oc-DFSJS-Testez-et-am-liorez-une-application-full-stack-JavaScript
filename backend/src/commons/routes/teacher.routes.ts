@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { TeacherController } from "./teacher.controller";
+import { TeacherController } from "../../modules/teacher/teacher.controller";
 import { authMiddleware } from "../middleware/auth.middleware";
 
 const teacherController = new TeacherController();
