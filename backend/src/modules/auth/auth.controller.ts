@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { AuthService } from "./auth.service";
 
 export class AuthController {
-  constructor(private readonly service = new AuthService()) {}
+  constructor(private readonly authService = new AuthService()) {}
 
   /**
    * `POST /auth/login` — authenticate a user and issue a JWT.
@@ -11,7 +11,7 @@ export class AuthController {
    * @param res Express response.
    */
   async login(req: Request, res: Response): Promise<void> {
-    const payload = await this.service.login(req.body);
+    const payload = await this.authService.login(req.body);
     res.status(200).json(payload);
   }
 
@@ -22,7 +22,7 @@ export class AuthController {
    * @param res Express response.
    */
   async register(req: Request, res: Response): Promise<void> {
-    const payload = await this.service.register(req.body);
+    const payload = await this.authService.register(req.body);
     res.status(201).json(payload);
   }
 }

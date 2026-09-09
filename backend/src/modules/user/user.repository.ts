@@ -58,6 +58,3 @@ export class UserRepository {
     return prisma.user.update({ where: { id }, data: { admin } });
   }
 }
-
-/** Shared instance used by the services. */
-export const userRepository = new UserRepository();

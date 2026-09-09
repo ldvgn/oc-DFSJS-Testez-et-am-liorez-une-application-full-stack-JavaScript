@@ -1,5 +1,5 @@
 import { Teacher } from "@prisma/client";
-import { teacherRepository, TeacherRepository } from "./teacher.repository";
+import { TeacherRepository } from "./teacher.repository";
 import { NotFoundError } from "../../commons/errors/http-error";
 import { TeacherResponse, TeacherResponseSchema } from "./teacher.dto";
 
@@ -9,7 +9,7 @@ import { TeacherResponse, TeacherResponseSchema } from "./teacher.dto";
  * Owns the teacher repository and is the only layer that turns a missing row into a {@link NotFoundError}.
  */
 export class TeacherService {
-  constructor(private readonly repo = new TeacherRepository()) {}
+  constructor(private readonly teacherRepo = new TeacherRepository()) {}
 
   /**
    * List every teacher.
@@ -17,7 +17,7 @@ export class TeacherService {
    * @returns The array of formatted teachers, newest first.
    */
   async getAll(): Promise<TeacherResponse[]> {
-    const teachers = await this.repo.findAll();
+    const teachers = await this.teacherRepo.findAll();
 
     return teachers.map((teacher) => this.toResponse(teacher));
   }
@@ -27,6 +27,8 @@ export class TeacherService {
    *
    * @param id The teacher id.
    * @returns The formatted teacher.
+   *
+   * @throws {NotFoundError} When no teacher matches the id.
    */
   async getById(id: number): Promise<TeacherResponse> {
     const teacher = await this.getTeacherOrThrow(id);
@@ -42,8 +44,8 @@ export class TeacherService {
    *
    * @throws {NotFoundError} When no teacher matches the id.
    */
-  private async getTeacherOrThrow(id: number): Promise<Teacher> {
-    const teacher = await this.repo.findOne(id);
+  async getTeacherOrThrow(id: number): Promise<Teacher> {
+    const teacher = await this.teacherRepo.findOne(id);
     if (!teacher) throw new NotFoundError("Teacher not found");
 
     return teacher;

@@ -26,6 +26,3 @@ export class TeacherRepository {
     return prisma.teacher.findUnique({ where: { id } });
   }
 }
-
-/** Shared instance used by the services. */
-export const teacherRepository = new TeacherRepository();

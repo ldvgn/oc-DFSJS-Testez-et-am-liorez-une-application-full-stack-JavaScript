@@ -9,16 +9,19 @@ import { UserResponse, UserResponseSchema } from "./user.dto";
  * Owns the user repository and is the only layer that turns a missing row into a {@link NotFoundError}.
  */
 export class UserService {
-  constructor(private readonly repo = new UserRepository()) {}
+  constructor(private readonly userRepo = new UserRepository()) {}
 
   /**
    * Fetch a single user by id.
    *
    * @param id The user id.
    * @returns The formatted user.
+   *
+   * @throws {NotFoundError} When no user matches the id.
    */
   async getById(id: number): Promise<UserResponse> {
-    return this.toResponse(await this.getUserOrThrow(id));
+    const user = await this.getUserOrThrow(id);
+    return this.toResponse(user);
   }
 
   /**
@@ -30,7 +33,7 @@ export class UserService {
    */
   async remove(id: number): Promise<void> {
     await this.getUserOrThrow(id);
-    await this.repo.delete(id);
+    await this.userRepo.delete(id);
   }
 
   /**
@@ -52,9 +55,24 @@ export class UserService {
     const user = await this.getUserOrThrow(userId);
     if (user.admin) return this.toResponse(user);
 
-    const updatedUser = await this.repo.updateAdmin(userId, true);
+    const updatedUser = await this.userRepo.updateAdmin(userId, true);
 
     return this.toResponse(updatedUser);
+  }
+
+  /**
+   * Load a user by id and assert admin privileges.
+   *
+   * @param id The user id.
+   * @returns The admin user entity.
+   *
+   * @throws {ForbiddenError} When the user is missing or not an admin.
+   */
+  async getAdminOrThrow(id: number): Promise<User> {
+    const user = await this.userRepo.findOne(id);
+    if (!user || !user.admin) throw new ForbiddenError("Admin access required");
+
+    return user;
   }
 
   /**
@@ -65,8 +83,8 @@ export class UserService {
    *
    * @throws {NotFoundError} When no user matches the id.
    */
-  private async getUserOrThrow(id: number): Promise<User> {
-    const user = await this.repo.findOne(id);
+  async getUserOrThrow(id: number): Promise<User> {
+    const user = await this.userRepo.findOne(id);
     if (!user) throw new NotFoundError("User not found");
 
     return user;
