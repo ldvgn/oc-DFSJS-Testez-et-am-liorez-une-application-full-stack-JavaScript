@@ -1,44 +1,61 @@
 import { Teacher } from "@prisma/client";
-import { teacherRepository } from "./teacher.repository";
+import { teacherRepository, TeacherRepository } from "./teacher.repository";
 import { NotFoundError } from "../../commons/errors/http-error";
+import { TeacherResponse, TeacherResponseSchema } from "./teacher.dto";
 
 /**
- * Map a teacher entity to the API response shape.
+ * Business logic for the `teacher` domain.
  *
- * @param teacher The teacher entity.
- * @returns A plain object with the public teacher fields.
+ * Owns the teacher repository and is the only layer that turns a missing row into a {@link NotFoundError}.
  */
-const formatTeacherResponse = (teacher: Teacher) => ({
-  id: teacher.id,
-  firstName: teacher.firstName,
-  lastName: teacher.lastName,
-  createdAt: teacher.createdAt,
-  updatedAt: teacher.updatedAt,
-});
+export class TeacherService {
+  constructor(private readonly repo = new TeacherRepository()) {}
 
-export const teacherService = {
   /**
-   * List every teacher, formatted for the API.
+   * List every teacher.
    *
    * @returns The array of formatted teachers, newest first.
    */
-  async getAll() {
-    const teachers = await teacherRepository.findAll();
+  async getAll(): Promise<TeacherResponse[]> {
+    const teachers = await this.repo.findAll();
 
-    return teachers.map(formatTeacherResponse);
-  },
+    return teachers.map((teacher) => this.toResponse(teacher));
+  }
 
   /**
-   * Fetch a single teacher by id, formatted for the API.
+   * Fetch a single teacher by id.
    *
    * @param id The teacher id.
    * @returns The formatted teacher.
-   * @throws NotFoundError When no teacher matches the id.
    */
-  async getById(id: number) {
-    const teacher = await teacherRepository.findOne(id);
+  async getById(id: number): Promise<TeacherResponse> {
+    const teacher = await this.getTeacherOrThrow(id);
+
+    return this.toResponse(teacher);
+  }
+
+  /**
+   * Load a teacher by id or fail.
+   *
+   * @param id The teacher id.
+   * @returns The matching teacher.
+   *
+   * @throws {NotFoundError} When no teacher matches the id.
+   */
+  private async getTeacherOrThrow(id: number): Promise<Teacher> {
+    const teacher = await this.repo.findOne(id);
     if (!teacher) throw new NotFoundError("Teacher not found");
 
-    return formatTeacherResponse(teacher);
-  },
-};
+    return teacher;
+  }
+
+  /**
+   * Map a teacher entity to the API response shape.
+   *
+   * @param teacher The teacher entity.
+   * @returns A plain object with the public teacher fields.
+   */
+  private toResponse(teacher: Teacher): TeacherResponse {
+    return TeacherResponseSchema.parse(teacher);
+  }
+}

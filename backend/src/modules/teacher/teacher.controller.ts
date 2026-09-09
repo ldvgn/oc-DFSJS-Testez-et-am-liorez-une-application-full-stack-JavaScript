@@ -1,18 +1,21 @@
 import { Response } from "express";
 import { AuthRequest } from "../../commons/middleware/auth.middleware";
-import { teacherService } from "./teacher.service";
+import { TeacherService } from "./teacher.service";
 import { parseId } from "../../commons/utils/parse-id.util";
 
+/** HTTP layer for the `teacher` domain: reads the request, delegates, sends the response. */
 export class TeacherController {
+  constructor(private readonly service = new TeacherService()) {}
+
   /**
    * `GET /teacher` — list every teacher, newest first.
    *
    * @param _ Authenticated request (unused).
    * @param res Express response.
-   * @returns `200` with the array of teachers.
    */
-  async getAll(_: AuthRequest, res: Response) {
-    return res.status(200).json(await teacherService.getAll());
+  async getAll(_: AuthRequest, res: Response): Promise<void> {
+    const teachers = await this.service.getAll();
+    res.status(200).json(teachers);
   }
 
   /**
@@ -20,13 +23,10 @@ export class TeacherController {
    *
    * @param req Authenticated request; `params.id` holds the teacher id.
    * @param res Express response.
-   * @returns `200` with the teacher.
-   * @throws BadRequestError When `params.id` is not a positive integer.
-   * @throws NotFoundError When no teacher matches the id.
    */
-  async getById(req: AuthRequest, res: Response) {
+  async getById(req: AuthRequest, res: Response): Promise<void> {
     const id = parseId(req.params.id, "Invalid teacher ID");
-
-    return res.status(200).json(await teacherService.getById(id));
+    const teacher = await this.service.getById(id);
+    res.status(200).json(teacher);
   }
 }
