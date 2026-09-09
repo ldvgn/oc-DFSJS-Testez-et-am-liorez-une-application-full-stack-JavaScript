@@ -1,9 +1,12 @@
 import { User } from "@prisma/client";
-import { BadRequestError, UnauthorizedError } from "../errors/http-error";
+import {
+  BadRequestError,
+  UnauthorizedError,
+} from "../../commons/errors/http-error";
 import { userRepository } from "../user/user.repository";
 import { LoginDto, RegisterDto } from "./auth.dto";
 import * as bcrypt from "bcrypt";
-import { generateToken } from "../utils/jwt.util";
+import { generateToken } from "../../commons/utils/jwt.util";
 
 /**
  * Build the authentication payload: the public user fields plus a fresh JWT.

@@ -1,8 +1,11 @@
 import { Router } from "express";
-import { SessionController } from "./session.controller";
+import { SessionController } from "../../modules/session/session.controller";
 import { authMiddleware } from "../middleware/auth.middleware";
 import { validateBody } from "../middleware/validate.middleware";
-import { CreateSessionSchema, UpdateSessionSchema } from "./session.dto";
+import {
+  CreateSessionSchema,
+  UpdateSessionSchema,
+} from "../../modules/session/session.dto";
 
 const sessionController = new SessionController();
 

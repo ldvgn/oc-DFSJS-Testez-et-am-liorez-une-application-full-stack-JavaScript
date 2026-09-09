@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { AuthController } from "./auth.controller";
+import { AuthController } from "../../modules/auth/auth.controller";
 import { validateBody } from "../middleware/validate.middleware";
-import { LoginSchema, RegisterSchema } from "./auth.dto";
+import { LoginSchema, RegisterSchema } from "../../modules/auth/auth.dto";
 
 const authController = new AuthController();
 

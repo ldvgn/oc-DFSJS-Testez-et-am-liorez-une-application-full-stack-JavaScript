@@ -1,8 +1,11 @@
 import { Response } from "express";
-import { AuthRequest } from "../middleware/auth.middleware";
-import { parseId } from "../utils/parse-id.util";
+import { AuthRequest } from "../../commons/middleware/auth.middleware";
+import { parseId } from "../../commons/utils/parse-id.util";
 import { userService } from "./user.service";
-import { ForbiddenError, UnauthorizedError } from "../errors/http-error";
+import {
+  ForbiddenError,
+  UnauthorizedError,
+} from "../../commons/errors/http-error";
 
 export class UserController {
   /**

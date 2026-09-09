@@ -4,7 +4,7 @@ import {
   BadRequestError,
   ForbiddenError,
   NotFoundError,
-} from "../errors/http-error";
+} from "../../commons/errors/http-error";
 import { userRepository } from "../user/user.repository";
 import { teacherRepository } from "../teacher/teacher.repository";
 import { CreateSessionDto, UpdateSessionDto } from "./session.dto";

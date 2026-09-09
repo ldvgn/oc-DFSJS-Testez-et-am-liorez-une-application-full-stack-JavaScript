@@ -1,5 +1,5 @@
 import { User } from "@prisma/client";
-import { NotFoundError } from "../errors/http-error";
+import { NotFoundError } from "../../commons/errors/http-error";
 import { userRepository } from "./user.repository";
 
 /**

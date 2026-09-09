@@ -1,6 +1,6 @@
 import { Teacher } from "@prisma/client";
 import { teacherRepository } from "./teacher.repository";
-import { NotFoundError } from "../errors/http-error";
+import { NotFoundError } from "../../commons/errors/http-error";
 
 /**
  * Map a teacher entity to the API response shape.

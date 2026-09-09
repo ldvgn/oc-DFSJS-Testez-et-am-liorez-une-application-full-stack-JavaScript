@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { authRouter } from "../auth/auth.routes";
-import { sessionRouter } from "../session/session.routes";
-import { teacherRouter } from "../teacher/teacher.routes";
-import { userRouter } from "../user/user.routes";
+import { authRouter } from "./auth.routes";
+import { sessionRouter } from "./session.routes";
+import { teacherRouter } from "./teacher.routes";
+import { userRouter } from "./user.routes";
 
 const router = Router();
 

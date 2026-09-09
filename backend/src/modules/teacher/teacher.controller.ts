@@ -1,7 +1,7 @@
 import { Response } from "express";
-import { AuthRequest } from "../middleware/auth.middleware";
+import { AuthRequest } from "../../commons/middleware/auth.middleware";
 import { teacherService } from "./teacher.service";
-import { parseId } from "../utils/parse-id.util";
+import { parseId } from "../../commons/utils/parse-id.util";
 
 export class TeacherController {
   /**
