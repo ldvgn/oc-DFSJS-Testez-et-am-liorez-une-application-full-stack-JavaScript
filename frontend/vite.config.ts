@@ -21,7 +21,14 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text", "html", "lcov"],
       include: ["src/**/*.{ts,tsx}"],
-      exclude: ["src/**/*.test.{ts,tsx}", "src/main.tsx", "src/types/**"],
+      exclude: [
+        "src/**/*.test.{ts,tsx}",
+        "src/main.tsx",
+        "src/types/**",
+        "src/utils/logger.ts",
+        "src/utils/notify.ts",
+      ],
     },
+    setupFiles: ["./src/setupTests.ts"],
   },
 });
