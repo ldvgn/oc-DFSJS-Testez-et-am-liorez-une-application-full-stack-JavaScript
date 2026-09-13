@@ -42,7 +42,7 @@ function Sessions() {
   return (
     <main>
       <header className="flex justify-between items-center mb-8">
-        <h1>Yoga Sessions</h1>
+        <h1 data-testid="title-sessions">Yoga Sessions</h1>
         {user?.admin && (
           <LinkButton to="/sessions/create">Create Session</LinkButton>
         )}

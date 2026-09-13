@@ -24,10 +24,10 @@ function renderRegister() {
 }
 
 async function fillForm(user: ReturnType<typeof userEvent.setup>) {
-  await user.type(screen.getByLabelText("First Name"), "Jane");
-  await user.type(screen.getByLabelText("Last Name"), "Doe");
-  await user.type(screen.getByLabelText("Email"), "jane@test.com");
-  await user.type(screen.getByLabelText("Password"), "password123");
+  await user.type(screen.getByTestId("firstname"), "Jane");
+  await user.type(screen.getByTestId("lastname"), "Doe");
+  await user.type(screen.getByTestId("email"), "jane@test.com");
+  await user.type(screen.getByTestId("password"), "password123");
 }
 
 beforeEach(() => {
@@ -39,10 +39,10 @@ describe("Register", () => {
     renderRegister();
 
     expect(screen.getByText("Register for Yoga Studio")).toBeInTheDocument();
-    expect(screen.getByLabelText("First Name")).toBeInTheDocument();
-    expect(screen.getByLabelText("Last Name")).toBeInTheDocument();
-    expect(screen.getByLabelText("Email")).toBeInTheDocument();
-    expect(screen.getByLabelText("Password")).toBeInTheDocument();
+    expect(screen.getByTestId("firstname")).toBeInTheDocument();
+    expect(screen.getByTestId("lastname")).toBeInTheDocument();
+    expect(screen.getByTestId("email")).toBeInTheDocument();
+    expect(screen.getByTestId("password")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Register" }),
     ).toBeInTheDocument();
@@ -88,9 +88,7 @@ describe("Register", () => {
     await fillForm(user);
     await user.click(screen.getByRole("button", { name: "Register" }));
 
-    expect(
-      await screen.findByText("Email already exists"),
-    ).toBeInTheDocument();
+    expect(await screen.findByText("Email already exists")).toBeInTheDocument();
   });
 
   it("shows a loading state while the request is in flight", async () => {

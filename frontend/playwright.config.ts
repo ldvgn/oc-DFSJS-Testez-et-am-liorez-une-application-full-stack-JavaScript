@@ -23,6 +23,11 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: "html",
+
+  /* Clean up test data before and after the suite runs */
+  globalSetup: "./e2e/global-cleanup.ts",
+  globalTeardown: "./e2e/global-cleanup.ts",
+
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */

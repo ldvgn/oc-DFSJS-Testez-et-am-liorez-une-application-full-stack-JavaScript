@@ -46,6 +46,7 @@ function Register() {
               type="text"
               id="firstName"
               name="firstName"
+              data-testid="firstname"
               autoComplete="given-name"
               value={formData.firstName}
               onChange={handleChange}
@@ -57,6 +58,7 @@ function Register() {
               type="text"
               id="lastName"
               name="lastName"
+              data-testid="lastname"
               autoComplete="family-name"
               value={formData.lastName}
               onChange={handleChange}
@@ -68,6 +70,7 @@ function Register() {
               id="email"
               name="email"
               type="email"
+              data-testid="email"
               autoComplete="email"
               value={formData.email}
               onChange={handleChange}
@@ -79,6 +82,7 @@ function Register() {
               id="password"
               name="password"
               type="password"
+              data-testid="password"
               autoComplete="current-password"
               value={formData.password}
               onChange={handleChange}
@@ -87,7 +91,12 @@ function Register() {
             />
           </FormField>
 
-          <Button type="submit" disabled={loading} className="w-full mt-2">
+          <Button
+            type="submit"
+            data-testid="submit"
+            disabled={loading}
+            className="w-full mt-2"
+          >
             {loading ? "Registering..." : "Register"}
           </Button>
         </form>
