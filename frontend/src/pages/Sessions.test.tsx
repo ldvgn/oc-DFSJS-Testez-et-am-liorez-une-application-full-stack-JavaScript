@@ -49,7 +49,7 @@ function makeSession(overrides: Partial<Session> = {}): Session {
     date: "2026-01-05T09:00:00.000Z",
     description: "A gentle morning session",
     teacher: { id: 1, firstName: "John", lastName: "Doe" },
-    users: [],
+    participants: [],
     ...overrides,
   };
 }

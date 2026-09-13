@@ -33,7 +33,7 @@ export function SessionMeta({
         {session.teacher.firstName} {session.teacher.lastName}
       </DescriptionItem>
       <DescriptionItem label="Participants" layout="inline">
-        {session.users.length}
+        {session.participants.length}
       </DescriptionItem>
     </dl>
   );

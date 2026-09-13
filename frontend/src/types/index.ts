@@ -22,7 +22,7 @@ export interface Session {
   date: string;
   description: string;
   teacher: Teacher;
-  users: number[];
+  participants: { sessionId: number; userId: number }[];
   createdAt?: string;
   updatedAt?: string;
 }

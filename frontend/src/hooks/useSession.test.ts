@@ -29,7 +29,7 @@ function makeSession(overrides: Partial<Session> = {}): Session {
     date: "2026-01-05T09:00:00.000Z",
     description: "A gentle morning session",
     teacher: { id: 1, firstName: "John", lastName: "Doe" },
-    users: [],
+    participants: [],
     ...overrides,
   };
 }
@@ -146,8 +146,11 @@ describe("useSession", () => {
   });
 
   it("registers the user then refetches the session", async () => {
-    const initial = makeSession({ id: 1, users: [] });
-    const updated = makeSession({ id: 1, users: [42] });
+    const initial = makeSession({ id: 1, participants: [] });
+    const updated = makeSession({
+      id: 1,
+      participants: [{ sessionId: 1, userId: 42 }],
+    });
     mockedSessionService.getById.mockResolvedValueOnce(mockResponse(initial));
     mockedSessionService.participate.mockResolvedValueOnce(
       mockResponse(undefined),
@@ -167,8 +170,11 @@ describe("useSession", () => {
   });
 
   it("unregisters the user then refetches the session", async () => {
-    const initial = makeSession({ id: 1, users: [42] });
-    const updated = makeSession({ id: 1, users: [] });
+    const initial = makeSession({
+      id: 1,
+      participants: [{ sessionId: 1, userId: 42 }],
+    });
+    const updated = makeSession({ id: 1, participants: [] });
     mockedSessionService.getById.mockResolvedValueOnce(mockResponse(initial));
     mockedSessionService.unparticipate.mockResolvedValueOnce(
       mockResponse(undefined),

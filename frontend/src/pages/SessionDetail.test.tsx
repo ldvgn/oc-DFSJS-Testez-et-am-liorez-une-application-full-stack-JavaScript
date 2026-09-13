@@ -54,7 +54,7 @@ function makeSession(overrides: Partial<Session> = {}): Session {
     date: "2026-01-05T09:00:00.000Z",
     description: "A gentle morning session",
     teacher: { id: 1, firstName: "John", lastName: "Doe" },
-    users: [],
+    participants: [],
     ...overrides,
   };
 }
@@ -118,8 +118,12 @@ describe("SessionDetail", () => {
       makeUser({ id: 42, admin: false }),
     );
     mockedSessionService.getById
-      .mockResolvedValueOnce(mockResponse(makeSession({ users: [] })))
-      .mockResolvedValueOnce(mockResponse(makeSession({ users: [42] })));
+      .mockResolvedValueOnce(mockResponse(makeSession({ participants: [] })))
+      .mockResolvedValueOnce(
+        mockResponse(
+          makeSession({ participants: [{ sessionId: 7, userId: 42 }] }),
+        ),
+      );
     mockedSessionService.participate.mockResolvedValueOnce(
       mockResponse(undefined),
     );
@@ -150,8 +154,12 @@ describe("SessionDetail", () => {
       makeUser({ id: 42, admin: false }),
     );
     mockedSessionService.getById
-      .mockResolvedValueOnce(mockResponse(makeSession({ users: [42] })))
-      .mockResolvedValueOnce(mockResponse(makeSession({ users: [] })));
+      .mockResolvedValueOnce(
+        mockResponse(
+          makeSession({ participants: [{ sessionId: 7, userId: 42 }] }),
+        ),
+      )
+      .mockResolvedValueOnce(mockResponse(makeSession({ participants: [] })));
     mockedSessionService.unparticipate.mockResolvedValueOnce(
       mockResponse(undefined),
     );
@@ -181,7 +189,7 @@ describe("SessionDetail", () => {
       makeUser({ id: 42, admin: false }),
     );
     mockedSessionService.getById.mockResolvedValueOnce(
-      mockResponse(makeSession({ users: [] })),
+      mockResponse(makeSession({ participants: [] })),
     );
     mockedSessionService.participate.mockRejectedValueOnce(new Error("boom"));
 
@@ -206,7 +214,7 @@ describe("SessionDetail", () => {
       makeUser({ id: 42, admin: false }),
     );
     mockedSessionService.getById.mockResolvedValueOnce(
-      mockResponse(makeSession({ users: [42] })),
+      mockResponse(makeSession({ participants: [{ sessionId: 7, userId: 42 }] })),
     );
     mockedSessionService.unparticipate.mockRejectedValueOnce(new Error("boom"));
 

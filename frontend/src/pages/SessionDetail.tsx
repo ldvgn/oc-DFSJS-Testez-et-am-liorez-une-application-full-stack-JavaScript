@@ -74,7 +74,7 @@ function SessionDetail() {
     return <Alert message={error || "Session not found"} />;
   }
 
-  const isParticipating = session.users.includes(user.id);
+  const isParticipating = session.participants.some((p) => p.userId === user.id);
 
   return (
     <main>
