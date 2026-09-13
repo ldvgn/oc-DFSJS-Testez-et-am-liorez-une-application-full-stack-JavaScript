@@ -32,8 +32,8 @@ describe("Login", () => {
     renderLogin();
 
     expect(screen.getByText("Login to Yoga Studio")).toBeInTheDocument();
-    expect(screen.getByLabelText("Email")).toBeInTheDocument();
-    expect(screen.getByLabelText("Password")).toBeInTheDocument();
+    expect(screen.getByTestId("email")).toBeInTheDocument();
+    expect(screen.getByTestId("password")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Login" })).toBeInTheDocument();
   });
 
@@ -50,8 +50,8 @@ describe("Login", () => {
     const user = userEvent.setup();
     renderLogin();
 
-    await user.type(screen.getByLabelText("Email"), "test@test.com");
-    await user.type(screen.getByLabelText("Password"), "password123");
+    await user.type(screen.getByTestId("email"), "test@test.com");
+    await user.type(screen.getByTestId("password"), "password123");
     await user.click(screen.getByRole("button", { name: "Login" }));
 
     await waitFor(() => {
@@ -73,8 +73,8 @@ describe("Login", () => {
     const user = userEvent.setup();
     renderLogin();
 
-    await user.type(screen.getByLabelText("Email"), "wrong@test.com");
-    await user.type(screen.getByLabelText("Password"), "wrong");
+    await user.type(screen.getByTestId("email"), "wrong@test.com");
+    await user.type(screen.getByTestId("password"), "wrong");
     await user.click(screen.getByRole("button", { name: "Login" }));
 
     expect(await screen.findByText("Invalid credentials")).toBeInTheDocument();
@@ -86,8 +86,8 @@ describe("Login", () => {
     const user = userEvent.setup();
     renderLogin();
 
-    await user.type(screen.getByLabelText("Email"), "test@test.com");
-    await user.type(screen.getByLabelText("Password"), "password123");
+    await user.type(screen.getByTestId("email"), "test@test.com");
+    await user.type(screen.getByTestId("password"), "password123");
     await user.click(screen.getByRole("button", { name: "Login" }));
 
     expect(screen.getByText("Loading...")).toBeInTheDocument();
