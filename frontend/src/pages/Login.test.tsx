@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { BrowserRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Login from "./Login";
@@ -46,15 +47,12 @@ describe("Login", () => {
       token: "jwt-token",
     });
 
+    const user = userEvent.setup();
     renderLogin();
 
-    fireEvent.change(screen.getByLabelText("Email"), {
-      target: { value: "test@test.com" },
-    });
-    fireEvent.change(screen.getByLabelText("Password"), {
-      target: { value: "password123" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Login" }));
+    await user.type(screen.getByLabelText("Email"), "test@test.com");
+    await user.type(screen.getByLabelText("Password"), "password123");
+    await user.click(screen.getByRole("button", { name: "Login" }));
 
     await waitFor(() => {
       expect(mockedAuthService.login).toHaveBeenCalledWith({
@@ -72,31 +70,25 @@ describe("Login", () => {
       }),
     );
 
+    const user = userEvent.setup();
     renderLogin();
 
-    fireEvent.change(screen.getByLabelText("Email"), {
-      target: { value: "wrong@test.com" },
-    });
-    fireEvent.change(screen.getByLabelText("Password"), {
-      target: { value: "wrong" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Login" }));
+    await user.type(screen.getByLabelText("Email"), "wrong@test.com");
+    await user.type(screen.getByLabelText("Password"), "wrong");
+    await user.click(screen.getByRole("button", { name: "Login" }));
 
     expect(await screen.findByText("Invalid credentials")).toBeInTheDocument();
   });
 
-  it("shows a loading state while the request is in flight", () => {
+  it("shows a loading state while the request is in flight", async () => {
     mockedAuthService.login.mockReturnValue(new Promise(() => {}));
 
+    const user = userEvent.setup();
     renderLogin();
 
-    fireEvent.change(screen.getByLabelText("Email"), {
-      target: { value: "test@test.com" },
-    });
-    fireEvent.change(screen.getByLabelText("Password"), {
-      target: { value: "password123" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Login" }));
+    await user.type(screen.getByLabelText("Email"), "test@test.com");
+    await user.type(screen.getByLabelText("Password"), "password123");
+    await user.click(screen.getByRole("button", { name: "Login" }));
 
     expect(screen.getByText("Loading...")).toBeInTheDocument();
   });

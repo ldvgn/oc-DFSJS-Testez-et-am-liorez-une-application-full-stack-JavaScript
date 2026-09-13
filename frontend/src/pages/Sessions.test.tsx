@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import type { AxiosResponse } from "axios";
 import { BrowserRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -125,8 +126,12 @@ describe("Sessions", () => {
     renderSessions();
 
     expect(await screen.findByText("Morning Flow")).toBeInTheDocument();
-    expect(screen.queryByText("Create Session")).not.toBeInTheDocument();
-    expect(screen.queryByText("Delete")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Create Session" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Delete" }),
+    ).not.toBeInTheDocument();
   });
 
   it("shows Create Session and Delete for an admin user", async () => {
@@ -139,8 +144,10 @@ describe("Sessions", () => {
 
     renderSessions();
 
-    expect(await screen.findByText("Create Session")).toBeInTheDocument();
-    expect(screen.getByText("Delete")).toBeInTheDocument();
+    expect(
+      await screen.findByRole("link", { name: "Create Session" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Delete" })).toBeInTheDocument();
   });
 
   it("does nothing when the delete confirmation is declined", async () => {
@@ -152,9 +159,10 @@ describe("Sessions", () => {
       mockResponse([makeSession({ id: 1 })]),
     );
 
+    const user = userEvent.setup();
     renderSessions();
 
-    fireEvent.click(await screen.findByText("Delete"));
+    await user.click(await screen.findByRole("button", { name: "Delete" }));
 
     expect(mockedSessionService.delete).not.toHaveBeenCalled();
   });
@@ -169,9 +177,10 @@ describe("Sessions", () => {
       .mockResolvedValueOnce(mockResponse([]));
     mockedSessionService.delete.mockResolvedValueOnce(mockResponse(undefined));
 
+    const user = userEvent.setup();
     renderSessions();
 
-    fireEvent.click(await screen.findByText("Delete"));
+    await user.click(await screen.findByRole("button", { name: "Delete" }));
 
     await waitFor(() =>
       expect(mockedSessionService.delete).toHaveBeenCalledWith(1),
@@ -189,9 +198,10 @@ describe("Sessions", () => {
     );
     mockedSessionService.delete.mockRejectedValueOnce(new Error("boom"));
 
+    const user = userEvent.setup();
     renderSessions();
 
-    fireEvent.click(await screen.findByText("Delete"));
+    await user.click(await screen.findByRole("button", { name: "Delete" }));
 
     await waitFor(() =>
       expect(mockedNotify.error).toHaveBeenCalledWith(

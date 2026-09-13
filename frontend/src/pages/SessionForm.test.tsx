@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import type { AxiosResponse } from "axios";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -134,12 +135,12 @@ describe("SessionForm", () => {
       screen.getByRole("heading", { name: "Edit Session" }),
     ).toBeInTheDocument();
 
-    await waitFor(() => {
+    await waitFor(() =>
       expect(screen.getByLabelText("Session Name")).toHaveValue(
         "Morning Flow",
-      );
-      expect(screen.getByLabelText("Teacher")).toHaveValue("2");
-    });
+      ),
+    );
+    expect(screen.getByLabelText("Teacher")).toHaveValue("2");
     expect(screen.getByLabelText("Date")).toHaveValue("2026-01-05");
     expect(screen.getByLabelText("Description")).toHaveValue(
       "A gentle morning session",
@@ -159,22 +160,20 @@ describe("SessionForm", () => {
       mockResponse(makeSession()),
     );
 
+    const user = userEvent.setup();
     renderSessionForm();
 
-    fireEvent.change(screen.getByLabelText("Session Name"), {
-      target: { value: "Evening Flow" },
-    });
+    await user.type(screen.getByLabelText("Session Name"), "Evening Flow");
     fireEvent.change(screen.getByLabelText("Date"), {
       target: { value: "2026-03-10" },
     });
-    fireEvent.change(await screen.findByLabelText("Teacher"), {
-      target: { value: "2" },
-    });
-    fireEvent.change(screen.getByLabelText("Description"), {
-      target: { value: "A relaxing evening session" },
-    });
+    await user.selectOptions(await screen.findByLabelText("Teacher"), "2");
+    await user.type(
+      screen.getByLabelText("Description"),
+      "A relaxing evening session",
+    );
 
-    fireEvent.click(screen.getByRole("button", { name: "Create Session" }));
+    await user.click(screen.getByRole("button", { name: "Create Session" }));
 
     await waitFor(() => {
       expect(mockedSessionService.create).toHaveBeenCalledWith({
@@ -201,6 +200,7 @@ describe("SessionForm", () => {
       mockResponse(makeSession()),
     );
 
+    const user = userEvent.setup();
     renderSessionForm("/sessions/edit/7");
 
     await waitFor(() =>
@@ -209,11 +209,10 @@ describe("SessionForm", () => {
       ),
     );
 
-    fireEvent.change(screen.getByLabelText("Session Name"), {
-      target: { value: "Updated Flow" },
-    });
+    await user.clear(screen.getByLabelText("Session Name"));
+    await user.type(screen.getByLabelText("Session Name"), "Updated Flow");
 
-    fireEvent.click(screen.getByRole("button", { name: "Update Session" }));
+    await user.click(screen.getByRole("button", { name: "Update Session" }));
 
     await waitFor(() => {
       expect(mockedSessionService.update).toHaveBeenCalledWith(7, {
@@ -231,22 +230,20 @@ describe("SessionForm", () => {
     mockedTeacherService.getAll.mockResolvedValue(mockResponse(teachers));
     mockedSessionService.create.mockRejectedValueOnce(new Error("boom"));
 
+    const user = userEvent.setup();
     renderSessionForm();
 
-    fireEvent.change(screen.getByLabelText("Session Name"), {
-      target: { value: "Evening Flow" },
-    });
+    await user.type(screen.getByLabelText("Session Name"), "Evening Flow");
     fireEvent.change(screen.getByLabelText("Date"), {
       target: { value: "2026-03-10" },
     });
-    fireEvent.change(await screen.findByLabelText("Teacher"), {
-      target: { value: "1" },
-    });
-    fireEvent.change(screen.getByLabelText("Description"), {
-      target: { value: "A relaxing evening session" },
-    });
+    await user.selectOptions(await screen.findByLabelText("Teacher"), "1");
+    await user.type(
+      screen.getByLabelText("Description"),
+      "A relaxing evening session",
+    );
 
-    fireEvent.click(screen.getByRole("button", { name: "Create Session" }));
+    await user.click(screen.getByRole("button", { name: "Create Session" }));
 
     expect(
       await screen.findByText("Failed to save session"),
@@ -265,10 +262,11 @@ describe("SessionForm", () => {
     ).toBeInTheDocument();
   });
 
-  it("navigates to the sessions list when Cancel is clicked", () => {
+  it("navigates to the sessions list when Cancel is clicked", async () => {
+    const user = userEvent.setup();
     renderSessionForm();
 
-    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
 
     expect(screen.getByText("Sessions List")).toBeInTheDocument();
   });

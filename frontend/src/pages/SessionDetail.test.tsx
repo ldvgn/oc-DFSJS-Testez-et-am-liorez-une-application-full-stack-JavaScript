@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import type { AxiosResponse } from "axios";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -123,18 +124,25 @@ describe("SessionDetail", () => {
       mockResponse(undefined),
     );
 
+    const user = userEvent.setup();
     renderSessionDetail();
 
-    expect(await screen.findByText("Join Session")).toBeInTheDocument();
-    expect(screen.queryByText("Leave Session")).not.toBeInTheDocument();
-    expect(screen.queryByText("Edit")).not.toBeInTheDocument();
+    expect(
+      await screen.findByRole("button", { name: "Join Session" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Leave Session" }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Edit" })).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByText("Join Session"));
+    await user.click(screen.getByRole("button", { name: "Join Session" }));
 
     await waitFor(() =>
       expect(mockedSessionService.participate).toHaveBeenCalledWith(7, 42),
     );
-    expect(await screen.findByText("Leave Session")).toBeInTheDocument();
+    expect(
+      await screen.findByRole("button", { name: "Leave Session" }),
+    ).toBeInTheDocument();
   });
 
   it("shows Leave Session for a joined non-admin, and switches back to Join Session once left", async () => {
@@ -148,17 +156,24 @@ describe("SessionDetail", () => {
       mockResponse(undefined),
     );
 
+    const user = userEvent.setup();
     renderSessionDetail();
 
-    expect(await screen.findByText("Leave Session")).toBeInTheDocument();
-    expect(screen.queryByText("Join Session")).not.toBeInTheDocument();
+    expect(
+      await screen.findByRole("button", { name: "Leave Session" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Join Session" }),
+    ).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByText("Leave Session"));
+    await user.click(screen.getByRole("button", { name: "Leave Session" }));
 
     await waitFor(() =>
       expect(mockedSessionService.unparticipate).toHaveBeenCalledWith(7, 42),
     );
-    expect(await screen.findByText("Join Session")).toBeInTheDocument();
+    expect(
+      await screen.findByRole("button", { name: "Join Session" }),
+    ).toBeInTheDocument();
   });
 
   it("notifies and logs when joining the session fails", async () => {
@@ -170,9 +185,12 @@ describe("SessionDetail", () => {
     );
     mockedSessionService.participate.mockRejectedValueOnce(new Error("boom"));
 
+    const user = userEvent.setup();
     renderSessionDetail();
 
-    fireEvent.click(await screen.findByText("Join Session"));
+    await user.click(
+      await screen.findByRole("button", { name: "Join Session" }),
+    );
 
     await waitFor(() =>
       expect(mockedNotify.error).toHaveBeenCalledWith("Failed to join session"),
@@ -192,9 +210,12 @@ describe("SessionDetail", () => {
     );
     mockedSessionService.unparticipate.mockRejectedValueOnce(new Error("boom"));
 
+    const user = userEvent.setup();
     renderSessionDetail();
 
-    fireEvent.click(await screen.findByText("Leave Session"));
+    await user.click(
+      await screen.findByRole("button", { name: "Leave Session" }),
+    );
 
     await waitFor(() =>
       expect(mockedNotify.error).toHaveBeenCalledWith(
@@ -218,19 +239,21 @@ describe("SessionDetail", () => {
     );
     mockedSessionService.delete.mockResolvedValueOnce(mockResponse(undefined));
 
+    const user = userEvent.setup();
     renderSessionDetail();
 
-    expect(await screen.findByText("Edit")).toHaveAttribute(
-      "href",
-      "/sessions/edit/7",
-    );
-    expect(screen.queryByText("Join Session")).not.toBeInTheDocument();
+    expect(
+      await screen.findByRole("link", { name: "Edit" }),
+    ).toHaveAttribute("href", "/sessions/edit/7");
+    expect(
+      screen.queryByRole("button", { name: "Join Session" }),
+    ).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByText("Delete"));
+    await user.click(screen.getByRole("button", { name: "Delete" }));
     expect(confirmSpy).toHaveBeenCalledTimes(1);
     expect(mockedSessionService.delete).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByText("Delete"));
+    await user.click(screen.getByRole("button", { name: "Delete" }));
 
     await waitFor(() =>
       expect(mockedSessionService.delete).toHaveBeenCalledWith(7),
@@ -246,9 +269,10 @@ describe("SessionDetail", () => {
     );
     mockedSessionService.delete.mockRejectedValueOnce(new Error("boom"));
 
+    const user = userEvent.setup();
     renderSessionDetail();
 
-    fireEvent.click(await screen.findByText("Delete"));
+    await user.click(await screen.findByRole("button", { name: "Delete" }));
 
     await waitFor(() =>
       expect(mockedNotify.error).toHaveBeenCalledWith(

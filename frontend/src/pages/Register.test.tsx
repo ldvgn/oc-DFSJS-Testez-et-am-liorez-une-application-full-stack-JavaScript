@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { BrowserRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Register from "./Register";
@@ -22,19 +23,11 @@ function renderRegister() {
   );
 }
 
-function fillForm() {
-  fireEvent.change(screen.getByLabelText("First Name"), {
-    target: { value: "Jane" },
-  });
-  fireEvent.change(screen.getByLabelText("Last Name"), {
-    target: { value: "Doe" },
-  });
-  fireEvent.change(screen.getByLabelText("Email"), {
-    target: { value: "jane@test.com" },
-  });
-  fireEvent.change(screen.getByLabelText("Password"), {
-    target: { value: "password123" },
-  });
+async function fillForm(user: ReturnType<typeof userEvent.setup>) {
+  await user.type(screen.getByLabelText("First Name"), "Jane");
+  await user.type(screen.getByLabelText("Last Name"), "Doe");
+  await user.type(screen.getByLabelText("Email"), "jane@test.com");
+  await user.type(screen.getByLabelText("Password"), "password123");
 }
 
 beforeEach(() => {
@@ -65,10 +58,11 @@ describe("Register", () => {
       token: "jwt-token",
     });
 
+    const user = userEvent.setup();
     renderRegister();
 
-    fillForm();
-    fireEvent.click(screen.getByRole("button", { name: "Register" }));
+    await fillForm(user);
+    await user.click(screen.getByRole("button", { name: "Register" }));
 
     await waitFor(() => {
       expect(mockedAuthService.register).toHaveBeenCalledWith({
@@ -88,23 +82,25 @@ describe("Register", () => {
       }),
     );
 
+    const user = userEvent.setup();
     renderRegister();
 
-    fillForm();
-    fireEvent.click(screen.getByRole("button", { name: "Register" }));
+    await fillForm(user);
+    await user.click(screen.getByRole("button", { name: "Register" }));
 
     expect(
       await screen.findByText("Email already exists"),
     ).toBeInTheDocument();
   });
 
-  it("shows a loading state while the request is in flight", () => {
+  it("shows a loading state while the request is in flight", async () => {
     mockedAuthService.register.mockReturnValue(new Promise(() => {}));
 
+    const user = userEvent.setup();
     renderRegister();
 
-    fillForm();
-    fireEvent.click(screen.getByRole("button", { name: "Register" }));
+    await fillForm(user);
+    await user.click(screen.getByRole("button", { name: "Register" }));
 
     expect(screen.getByText("Registering...")).toBeInTheDocument();
   });

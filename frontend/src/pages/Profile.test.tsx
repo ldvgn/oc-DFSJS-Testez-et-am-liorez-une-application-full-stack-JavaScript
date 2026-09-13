@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import type { AxiosResponse } from "axios";
 import { BrowserRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -120,9 +121,12 @@ describe("Profile", () => {
       mockResponse(makeUser({ admin: true })),
     );
 
+    const user = userEvent.setup();
     renderProfile();
 
-    fireEvent.click(await screen.findByText("Promote to Admin (Dev)"));
+    await user.click(
+      await screen.findByRole("button", { name: "Promote to Admin (Dev)" }),
+    );
 
     await waitFor(() =>
       expect(mockedAuthService.updateCurrentUser).toHaveBeenCalledWith({
@@ -137,9 +141,12 @@ describe("Profile", () => {
     mockedUserService.getById.mockResolvedValueOnce(mockResponse(makeUser()));
     mockedUserService.delete.mockResolvedValueOnce(mockResponse(undefined));
 
+    const user = userEvent.setup();
     renderProfile();
 
-    fireEvent.click(await screen.findByText("Delete Account"));
+    await user.click(
+      await screen.findByRole("button", { name: "Delete Account" }),
+    );
 
     await waitFor(() =>
       expect(mockedUserService.delete).toHaveBeenCalledWith(1),
@@ -151,9 +158,12 @@ describe("Profile", () => {
     vi.spyOn(window, "confirm").mockReturnValue(false);
     mockedUserService.getById.mockResolvedValueOnce(mockResponse(makeUser()));
 
+    const user = userEvent.setup();
     renderProfile();
 
-    fireEvent.click(await screen.findByText("Delete Account"));
+    await user.click(
+      await screen.findByRole("button", { name: "Delete Account" }),
+    );
 
     expect(mockedUserService.delete).not.toHaveBeenCalled();
     expect(mockedAuthService.logout).not.toHaveBeenCalled();

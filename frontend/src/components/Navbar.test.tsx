@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Navbar from "./Navbar";
@@ -52,10 +53,14 @@ describe("Navbar", () => {
 
     renderNavbar();
 
-    expect(screen.getByText("Login")).toBeInTheDocument();
-    expect(screen.getByText("Register")).toBeInTheDocument();
-    expect(screen.queryByText("Sessions")).not.toBeInTheDocument();
-    expect(screen.queryByText("Logout")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Login" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Register" })).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Sessions" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Logout" }),
+    ).not.toBeInTheDocument();
   });
 
   it("shows Sessions, Profile and Logout, but not Create Session, for a non-admin user", () => {
@@ -66,10 +71,12 @@ describe("Navbar", () => {
 
     renderNavbar();
 
-    expect(screen.getByText("Sessions")).toBeInTheDocument();
-    expect(screen.getByText("Profile")).toBeInTheDocument();
-    expect(screen.getByText("Logout")).toBeInTheDocument();
-    expect(screen.queryByText("Create Session")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Sessions" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Profile" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Logout" })).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Create Session" }),
+    ).not.toBeInTheDocument();
   });
 
   it("also shows Create Session for an admin user", () => {
@@ -78,16 +85,19 @@ describe("Navbar", () => {
 
     renderNavbar();
 
-    expect(screen.getByText("Create Session")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Create Session" }),
+    ).toBeInTheDocument();
   });
 
-  it("logs out and redirects to the login page when Logout is clicked", () => {
+  it("logs out and redirects to the login page when Logout is clicked", async () => {
     mockedAuthService.isAuthenticated.mockReturnValue(true);
     mockedAuthService.getCurrentUser.mockReturnValue(makeUser());
 
+    const user = userEvent.setup();
     renderNavbar();
 
-    fireEvent.click(screen.getByText("Logout"));
+    await user.click(screen.getByRole("button", { name: "Logout" }));
 
     expect(mockedAuthService.logout).toHaveBeenCalledTimes(1);
     expect(screen.getByText("Login Page")).toBeInTheDocument();
