@@ -24,25 +24,38 @@ function Navbar() {
           {isAuthenticated ? (
             <>
               <li>
-                <TextLink to="/sessions" variant="inverted">
+                <TextLink
+                  to="/sessions"
+                  data-testid="nav-sessions"
+                  variant="inverted"
+                >
                   Sessions
                 </TextLink>
               </li>
               {user && user.admin && (
                 <li>
-                  <TextLink to="/sessions/create" variant="inverted">
+                  <TextLink
+                    to="/sessions/create"
+                    data-testid="nav-create"
+                    variant="inverted"
+                  >
                     Create Session
                   </TextLink>
                 </li>
               )}
               <li>
-                <TextLink to="/profile" variant="inverted">
+                <TextLink
+                  to="/profile"
+                  data-testid="nav-profile"
+                  variant="inverted"
+                >
                   Profile
                 </TextLink>
               </li>
               <li>
                 <Button
                   onClick={handleLogout}
+                  data-testid="nav-logout"
                   className="bg-indigo-700 hover:bg-indigo-800"
                 >
                   Logout
@@ -52,12 +65,20 @@ function Navbar() {
           ) : (
             <>
               <li>
-                <TextLink to="/login" variant="inverted">
+                <TextLink
+                  to="/login"
+                  data-testid="nav-login"
+                  variant="inverted"
+                >
                   Login
                 </TextLink>
               </li>
               <li>
-                <TextLink to="/register" variant="inverted">
+                <TextLink
+                  to="/register"
+                  data-testid="nav-register"
+                  variant="inverted"
+                >
                   Register
                 </TextLink>
               </li>

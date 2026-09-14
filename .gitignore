@@ -30,6 +30,8 @@ Thumbs.db
 
 # Testing
 coverage/
+coverage-e2e/
+.coverage-e2e-tmp/
 *.lcov
 
 # Logs

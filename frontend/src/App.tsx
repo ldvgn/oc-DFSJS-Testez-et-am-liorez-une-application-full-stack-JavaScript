@@ -22,7 +22,7 @@ function PrivateRoute({ children }: { children: ReactNode }) {
 
 function App() {
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <div className="min-h-screen flex flex-col bg-gray-100">
         <Navbar />
         <Routes>
