@@ -1,14 +1,10 @@
 import "express-async-errors";
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import routes from "./commons/routes";
 import { errorHandler } from "./commons/middleware/error.middleware";
 
-dotenv.config();
-
 const app = express();
-const PORT = process.env.PORT || 8080;
 
 // Middleware
 app.use(cors());
@@ -25,11 +21,5 @@ app.get("/api/health", (req, res) => {
 
 // Must be registered after all routes to catch their errors
 app.use(errorHandler);
-
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
-});
 
 export default app;
