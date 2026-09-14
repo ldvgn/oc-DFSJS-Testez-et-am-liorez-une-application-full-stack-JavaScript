@@ -108,6 +108,48 @@ describe("UserService", () => {
     });
   });
 
+  describe("promoteSelfToAdmin", () => {
+    const originalNodeEnv = process.env.NODE_ENV;
+
+    afterEach(() => {
+      process.env.NODE_ENV = originalNodeEnv;
+    });
+
+    it("throws ForbiddenError outside of development", async () => {
+      process.env.NODE_ENV = "production";
+
+      await expect(userService.promoteSelfToAdmin(1)).rejects.toThrow(
+        ForbiddenError,
+      );
+      expect(mockPrisma.user.findUnique).not.toHaveBeenCalled();
+    });
+
+    it("returns the user as-is when already an admin", async () => {
+      process.env.NODE_ENV = "development";
+      const admin = { ...mockUser, admin: true };
+      mockPrisma.user.findUnique.mockResolvedValue(admin);
+
+      const result = await userService.promoteSelfToAdmin(admin.id);
+
+      expect(result.admin).toBe(true);
+      expect(mockPrisma.user.update).not.toHaveBeenCalled();
+    });
+
+    it("promotes the user when not yet an admin", async () => {
+      process.env.NODE_ENV = "development";
+      mockPrisma.user.findUnique.mockResolvedValue(mockUser);
+      mockPrisma.user.update.mockResolvedValue({ ...mockUser, admin: true });
+
+      const result = await userService.promoteSelfToAdmin(mockUser.id);
+
+      expect(result.admin).toBe(true);
+      expect(mockPrisma.user.update).toHaveBeenCalledWith({
+        where: { id: mockUser.id },
+        data: { admin: true },
+      });
+    });
+  });
+
   describe("getUserOrThrow", () => {
     it("returns the raw user entity when it exists", async () => {
       mockPrisma.user.findUnique.mockResolvedValue(mockUser);

@@ -10,6 +10,9 @@ export default defineConfig({
         "src/**/*.dto.ts",
         "src/**/*.test.ts",
         "src/server.ts",
+        "src/test-utils/**",
+        "src/app.ts",
+        "src/commons/prisma/client.ts",
       ],
       thresholds: {
         statements: 80,
@@ -32,6 +35,9 @@ export default defineConfig({
         test: {
           name: "integration",
           include: ["src/**/*.integration.test.ts"],
+          // Every file shares the same test database, so files must run
+          // one after another (not in parallel workers) to stay isolated.
+          fileParallelism: false,
         },
       },
     ],
