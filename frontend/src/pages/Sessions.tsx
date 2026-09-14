@@ -44,7 +44,9 @@ function Sessions() {
       <header className="flex justify-between items-center mb-8">
         <h1 data-testid="title-sessions">Yoga Sessions</h1>
         {user?.admin && (
-          <LinkButton to="/sessions/create">Create Session</LinkButton>
+          <LinkButton to="/sessions/create" data-testid="create-session">
+            Create Session
+          </LinkButton>
         )}
       </header>
 
@@ -68,6 +70,7 @@ function Sessions() {
                   <LinkButton
                     to={`/sessions/${session.id}`}
                     className="flex-1 text-center"
+                    data-testid="link-details"
                   >
                     View Details
                   </LinkButton>
@@ -76,6 +79,7 @@ function Sessions() {
                     <Button
                       onClick={() => handleDelete(session.id)}
                       variant="danger"
+                      data-testid="link-delete"
                     >
                       Delete
                     </Button>

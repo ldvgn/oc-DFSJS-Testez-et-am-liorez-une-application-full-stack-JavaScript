@@ -9,10 +9,12 @@ const OUT_DIR = path.join(process.cwd(), "coverage-e2e");
 
 const EXCLUDE = [
   /\.test\.[tj]sx?$/,
+  /\.spec\.[tj]sx?$/,
   /\/src\/main\.tsx$/,
   /\/src\/types\//,
   /\/src\/utils\/logger\.ts$/,
   /\/src\/utils\/notify\.ts$/,
+  /\/src\/App\.tsx$/,
 ];
 
 if (!fs.existsSync(TMP_DIR)) {

@@ -149,7 +149,12 @@ function SessionForm() {
           </FormField>
 
           <div className="flex space-x-4 mt-2">
-            <Button type="submit" disabled={loading} className="flex-1">
+            <Button
+              type="submit"
+              disabled={loading}
+              data-testid="submit"
+              className="flex-1"
+            >
               {loading
                 ? "Saving..."
                 : isEditMode
@@ -158,6 +163,7 @@ function SessionForm() {
             </Button>
             <Button
               onClick={() => navigate("/sessions")}
+              data-testid="cancel"
               className="flex-1"
               variant="secondary"
             >

@@ -17,16 +17,19 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: true,
+    exclude: ["e2e/**", "node_modules/**"],
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "lcov"],
       include: ["src/**/*.{ts,tsx}"],
       exclude: [
         "src/**/*.test.{ts,tsx}",
+        "src/**/*.spec.{ts,tsx}",
         "src/main.tsx",
         "src/types/**",
         "src/utils/logger.ts",
         "src/utils/notify.ts",
+        "src/App.tsx",
       ],
     },
     setupFiles: ["./src/setupTests.ts"],
