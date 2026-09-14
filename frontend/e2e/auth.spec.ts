@@ -1,53 +1,42 @@
 import { test, expect } from "./fixtures/coverage";
+import { LoginPage } from "./pages/login.page";
+import { RegisterPage } from "./pages/register.page";
+import { SessionDetailPage } from "./pages/session-detail.page";
+import { SessionPage } from "./pages/session.page";
 
 test.describe("Authentication", () => {
-  test.beforeAll(async ({ request }) => {
-    // create a user in db
-    const user = {
-      email: "example@e2e.test",
-      firstName: "Firstname E2E",
-      lastName: "Lastname E2E",
-      password: "password123",
-    };
-    await request.post("/api/auth/register", { data: user });
-  });
-
   test.describe("Registration", () => {
-    test("registers, then lands on the sessions list", async ({ page }) => {
-      const email = `e2e-${Date.now()}@e2e.test`;
+    test("registers, then redirects to the sessions list", async ({ page }) => {
+      const registerPage = new RegisterPage(page);
+      const loginPage = new LoginPage(page);
+      const sessionPage = new SessionPage(page);
+      const email = `e2e-${Date.now()}-${Math.random().toString(36).slice(2)}@e2e.test`;
 
-      await page.goto("/login");
+      await loginPage.goto();
+      await loginPage.registerLink.click();
+      await registerPage.submitRegisterForm(
+        "Firstname E2E",
+        "Lastname E2E",
+        email,
+        "password123",
+      );
 
-      await page.getByTestId("register").click();
-      await page.getByTestId("firstname").fill("Firstname E2E");
-      await page.getByTestId("lastname").fill("Lastname E2E");
-      await page.getByTestId("email").fill(email);
-      await page.getByTestId("password").fill("password123");
-
-      await page.getByTestId("submit").click();
-
-      await expect(page.getByTestId("title-sessions")).toBeVisible();
-
-      await expect(page.getByTestId("nav-sessions")).toBeVisible();
-      await expect(page.getByTestId("nav-profile")).toBeVisible();
-      await expect(page.getByTestId("nav-logout")).toBeVisible();
-      await expect(page.getByTestId("nav-login")).not.toBeVisible();
-      await expect(page.getByTestId("nav-register")).not.toBeVisible();
-
-      // When register me, I'm not admin
-      await expect(page.getByTestId("nav-create")).not.toBeVisible();
+      await expect(sessionPage.title).toBeVisible();
+      await registerPage.expectAuthenticatedUserNavbar();
     });
 
     test("shows an error when registering with an already-used email", async ({
       page,
     }) => {
-      await page.goto("/register");
-      await page.getByTestId("firstname").fill("Firstname E2E");
-      await page.getByTestId("lastname").fill("Lastname E2E");
-      await page.getByTestId("email").fill("example@e2e.test");
-      await page.getByTestId("password").fill("password123");
+      const registerPage = new RegisterPage(page);
 
-      await page.getByTestId("submit").click();
+      await registerPage.goto();
+      await registerPage.submitRegisterForm(
+        "Firstname E2E",
+        "Lastname E2E",
+        "user@test.com",
+        "password123",
+      );
 
       await expect(page.getByText("Email already exists")).toBeVisible();
     });
@@ -55,49 +44,58 @@ test.describe("Authentication", () => {
 
   test.describe("Login", () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto("/login");
+      const loginPage = new LoginPage(page);
+
+      await loginPage.goto();
     });
 
-    test("logs in with valid credentials and lands on the sessions list", async ({
+    test("logs in with valid credentials and redirects to the sessions list", async ({
       page,
     }) => {
-      await page.getByTestId("email").fill("example@e2e.test");
-      await page.getByTestId("password").fill("password123");
+      const loginPage = new LoginPage(page);
+      const sessionPage = new SessionPage(page);
 
-      await page.getByTestId("submit").click();
+      await loginPage.submitLoginForm("user@test.com", "test!1234");
 
-      await expect(page.getByTestId("title-sessions")).toBeVisible();
+      await expect(sessionPage.title).toBeVisible();
     });
 
     test("shows an error and stays on the page with invalid credentials", async ({
       page,
     }) => {
-      await page.getByTestId("email").fill("not-existing-user@e2e.test");
-      await page.getByTestId("password").fill("badpassword!");
+      const loginPage = new LoginPage(page);
 
-      await page.getByTestId("submit").click();
+      await loginPage.submitLoginForm(
+        "not-existing-user@e2e.test",
+        "badpassword!",
+      );
 
       await expect(page.getByText("Invalid credentials")).toBeVisible();
-    });
-
-    test("logs out and is redirected to login", async ({ page }) => {
-      await page.getByTestId("email").fill("example@e2e.test");
-      await page.getByTestId("password").fill("password123");
-
-      await page.getByTestId("submit").click();
-
-      await expect(page.getByTestId("nav-logout")).toBeVisible();
-      await page.getByTestId("nav-logout").click();
-
-      await expect(page.getByTestId("title-login")).toBeVisible();
     });
 
     test("redirects to login when visiting a protected route while unauthenticated", async ({
       page,
     }) => {
-      await page.goto("/sessions/6");
+      const sessionDetailPage = new SessionDetailPage(page);
+      const loginPage = new LoginPage(page);
 
-      await expect(page.getByTestId("title-login")).toBeVisible();
+      await sessionDetailPage.goto(6);
+
+      await expect(loginPage.title).toBeVisible();
+    });
+
+    test.describe("logged in", () => {
+      test.use({ storageState: "playwright/.auth/user.json" });
+
+      test("logs out and is redirected to login", async ({ page }) => {
+        const sessionPage = new SessionPage(page);
+        const loginPage = new LoginPage(page);
+
+        await sessionPage.expectAuthenticatedUserNavbar();
+        await sessionPage.logoutLink.click();
+
+        await expect(loginPage.title).toBeVisible();
+      });
     });
   });
 });
