@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  postgres-test:
+    image: postgres:16-alpine
+    container_name: yoga-studio-db-test
+    environment:
+      POSTGRES_USER: yogauser
+      POSTGRES_PASSWORD: yogapass
+      POSTGRES_DB: yogastudio_test
+    ports:
+      - "5433:5432"   # port différent de ta BDD de dev (5432)
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U yogauser -d yogastudio_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    tmpfs:
+      - /var/lib/postgresql/data   # pas de volume persistant : la BDD repart de zéro à chaque `up`

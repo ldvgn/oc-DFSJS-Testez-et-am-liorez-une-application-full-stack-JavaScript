@@ -1,4 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
  * Read environment variables from file.
@@ -24,9 +28,8 @@ export default defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: "html",
 
-  /* Clean up test data before and after the suite runs */
-  globalSetup: "./e2e/global-cleanup.ts",
-  globalTeardown: "./e2e/global-cleanup.ts",
+  /* Global setup: migrate and reset the test database before running the e2e suite */
+  globalSetup: "./e2e/setup/global-setup.ts",
 
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
@@ -75,11 +78,23 @@ export default defineConfig({
     // },
   ],
 
-  /* Run your local dev server before starting the tests */
-  webServer: {
-    command: "npm run dev",
-    url: "http://localhost:3000",
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000, // 2 minutes
-  },
+  /* Run your local dev server(s) before starting the tests */
+  webServer: [
+    {
+      /* Backend Express, run with .env.test → connected to à yogastudio_test */
+      command: "npm run start:test",
+      cwd: path.resolve(__dirname, "../backend"),
+      url: "http://localhost:4000/api/health",
+      reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000,
+    },
+    {
+      /* Frontend */
+      command: "npm run dev",
+      url: "http://localhost:3000",
+      reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000,
+      env: { VITE_API_URL: "http://localhost:4000" },
+    },
+  ],
 });
