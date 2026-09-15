@@ -279,12 +279,83 @@ p4-dfsjs-starter/
 
 ## Testing
 
-The project supports comprehensive testing with the following frameworks:
-- **Unit tests**: For testing individual components and utilities
-- **Integration tests**: For testing API endpoints
-- **End-to-end tests**: For testing critical user flows
+The project uses **Vitest** (unit & integration tests, backend and frontend), **Supertest** (backend API integration tests) and **Playwright** (frontend end-to-end tests).
 
-Run tests with the appropriate npm scripts in each directory.
+### Prerequisites for integration & E2E tests
+
+Integration tests (backend) and E2E tests (frontend) run against a dedicated test database, separate from the dev one.
+
+1. Start the test database:
+
+```bash
+docker-compose -f docker-compose.test.yml up -d
+```
+
+This starts PostgreSQL on port `5433` (`yogastudio_test` DB, no persistent volume — it resets on every `up`).
+
+2. Create the backend test environment file:
+
+```bash
+cd backend
+cp .env.test.example .env.test
+```
+
+3. Apply migrations and seed the test database:
+
+```bash
+npm run db:test:reset
+```
+
+### Backend tests (Vitest + Supertest)
+
+From `backend/`:
+
+```bash
+npm run test:unit         # unit tests only — no DB required
+npm run test:integration  # integration tests — requires the test DB running
+npm run test              # unit + integration together
+npm run test:coverage     # unit + integration, with coverage report
+```
+
+Coverage report: `backend/coverage/index.html` (also `lcov.info`). Zod validation schemas and DTOs are intentionally excluded from coverage (see `backend/vitest.config.mts`). A minimum of 80% is enforced for statements, branches, functions and lines — `npm run test:coverage` fails if any indicator drops below that threshold.
+
+### Frontend unit & integration tests (Vitest)
+
+From `frontend/`:
+
+```bash
+npm run test        # watch mode
+npm run test:run    # single run
+npm run test:cov    # single run, with coverage report
+```
+
+Coverage report: `frontend/coverage/index.html` (also `lcov.info`). Aim for at least 80% on all indicators (statements, branches, functions, lines).
+
+### Frontend end-to-end tests (Playwright)
+
+E2E tests need the test database (see prerequisites above); Playwright starts the backend (`npm run start:test`, connected to the test DB) and the frontend dev server automatically.
+
+```bash
+cd frontend
+npm run test:e2e          # run all E2E specs (chromium, firefox, webkit)
+npm run test:e2e:ui       # interactive UI mode
+```
+
+To generate an E2E coverage report:
+
+```bash
+npm run test:e2e:cov
+```
+
+This runs the suite on Chromium with code coverage instrumentation, then merges the results into `frontend/coverage-e2e/index.html` (also `lcov.info`) via `scripts/merge-e2e-coverage.mjs`. Aim for at least 80% on all indicators.
+
+### Coverage summary
+
+| Suite | Command (run in `backend/` or `frontend/`) | Report location | Threshold |
+|---|---|---|---|
+| Backend unit + integration | `npm run test:coverage` | `backend/coverage/index.html` | 80% (enforced) |
+| Frontend unit + integration | `npm run test:cov` | `frontend/coverage/index.html` | 80% |
+| Frontend E2E | `npm run test:e2e:cov` | `frontend/coverage-e2e/index.html` | 80% |
 
 ## Troubleshooting
 
