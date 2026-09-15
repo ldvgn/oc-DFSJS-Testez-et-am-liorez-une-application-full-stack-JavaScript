@@ -1,8 +1,6 @@
 import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
-import { User } from "@prisma/client";
 import * as bcrypt from "bcrypt";
 import { AuthService } from "./auth.service";
-import { UserRepository } from "../user/user.repository";
 import {
   BadRequestError,
   UnauthorizedError,
@@ -116,6 +114,15 @@ describe("AuthService", () => {
       expect(result.id).toBe(2);
       expect(result.email).toBe("new@test.com");
       expect(result.token).toBeDefined();
+      expect(mockPrisma.user.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            email: "new@test.com",
+            admin: false,
+            password: expect.not.stringMatching("password123"),
+          }),
+        }),
+      );
     });
 
     it("throws BadRequestError when the email is already registered", async () => {

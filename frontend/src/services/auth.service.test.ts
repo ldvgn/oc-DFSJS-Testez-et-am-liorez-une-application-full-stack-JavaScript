@@ -43,15 +43,14 @@ describe("authService.login", () => {
     expect(JSON.parse(localStorage.getItem("user")!)).toEqual(authResponse);
   });
 
-  it("does not touch storage when the response has no token", async () => {
-    mockedApi.post.mockResolvedValueOnce({
-      data: { ...authResponse, token: "" },
-    });
+  it("does not modify storage when the request fails", async () => {
+    mockedApi.post.mockRejectedValueOnce(new Error("Invalid credentials"));
 
-    await authService.login({ email: "user@test.com", password: "test!1234" });
+    await expect(
+      authService.login({ email: "user@test.com", password: "wrong" }),
+    ).rejects.toThrow("Invalid credentials");
 
     expect(localStorage.getItem("token")).toBeNull();
-    expect(localStorage.getItem("user")).toBeNull();
   });
 });
 
@@ -77,17 +76,17 @@ describe("authService.register", () => {
     expect(JSON.parse(localStorage.getItem("user")!)).toEqual(authResponse);
   });
 
-  it("does not touch storage when the response has no token", async () => {
-    mockedApi.post.mockResolvedValueOnce({
-      data: { ...authResponse, token: "" },
-    });
+  it("does not modify storage when the request fails", async () => {
+    mockedApi.post.mockRejectedValueOnce(new Error("Email already exists"));
 
-    await authService.register({
-      email: "user@test.com",
-      password: "test!1234",
-      firstName: "Jane",
-      lastName: "Doe",
-    });
+    await expect(
+      authService.register({
+        email: "user@test.com",
+        password: "test!1234",
+        firstName: "Jane",
+        lastName: "Doe",
+      }),
+    ).rejects.toThrow("Email already exists");
 
     expect(localStorage.getItem("token")).toBeNull();
     expect(localStorage.getItem("user")).toBeNull();

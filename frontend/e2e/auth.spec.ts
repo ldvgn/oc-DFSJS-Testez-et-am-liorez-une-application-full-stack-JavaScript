@@ -45,7 +45,6 @@ test.describe("Authentication", () => {
   test.describe("Login", () => {
     test.beforeEach(async ({ page }) => {
       const loginPage = new LoginPage(page);
-
       await loginPage.goto();
     });
 

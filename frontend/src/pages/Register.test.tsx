@@ -32,12 +32,11 @@ async function fillForm(user: ReturnType<typeof userEvent.setup>) {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  renderRegister();
 });
 
 describe("Register", () => {
   it("renders the registration form", () => {
-    renderRegister();
-
     expect(screen.getByText("Register for Yoga Studio")).toBeInTheDocument();
     expect(screen.getByTestId("firstname")).toBeInTheDocument();
     expect(screen.getByTestId("lastname")).toBeInTheDocument();
@@ -57,9 +56,7 @@ describe("Register", () => {
       admin: false,
       token: "jwt-token",
     });
-
     const user = userEvent.setup();
-    renderRegister();
 
     await fillForm(user);
     await user.click(screen.getByRole("button", { name: "Register" }));
@@ -81,9 +78,7 @@ describe("Register", () => {
         response: { data: { message: "Email already exists" } },
       }),
     );
-
     const user = userEvent.setup();
-    renderRegister();
 
     await fillForm(user);
     await user.click(screen.getByRole("button", { name: "Register" }));
@@ -92,10 +87,8 @@ describe("Register", () => {
   });
 
   it("shows a loading state while the request is in flight", async () => {
-    mockedAuthService.register.mockReturnValue(new Promise(() => {}));
-
+    mockedAuthService.register.mockReturnValueOnce(new Promise(() => {}));
     const user = userEvent.setup();
-    renderRegister();
 
     await fillForm(user);
     await user.click(screen.getByRole("button", { name: "Register" }));
@@ -104,8 +97,6 @@ describe("Register", () => {
   });
 
   it("has a link to the login page", () => {
-    renderRegister();
-
     expect(
       screen.getByRole("link", { name: "Login here" }),
     ).toBeInTheDocument();
