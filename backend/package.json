@@ -2,19 +2,24 @@
   "name": "yoga-studio-backend",
   "version": "1.0.0",
   "description": "Backend API for Yoga Studio App",
-  "main": "dist/app.js",
+  "main": "dist/server.js",
   "scripts": {
     "dev": "nodemon",
     "build": "tsc",
-    "start": "node dist/app.js",
-		"start:test": "dotenv -e .env.test -- ts-node src/app.ts",
+    "start": "node dist/server.js",
+    "start:test": "dotenv -e .env.test -- ts-node src/server.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "ts-node prisma/seed.ts",
-		"prisma:seed:test": "dotenv -e .env.test -- npm run prisma:seed",
+    "prisma:seed:test": "dotenv -e .env.test -- npm run prisma:seed",
     "prisma:studio": "prisma studio",
-		"prisma:studio:test": "dotenv -e .env.test -- prisma studio --port 5556",
-		"db:test:reset": "dotenv -e .env.test -- prisma migrate reset --force --skip-generate --skip-seed && npm run prisma:seed:test"
+    "prisma:studio:test": "dotenv -e .env.test -- prisma studio --port 5556",
+    "db:test:reset": "dotenv -e .env.test -- prisma migrate reset --force --skip-generate --skip-seed && npm run prisma:seed:test",
+    "test": "dotenv -e .env.test -- vitest run",
+    "test:watch": "dotenv -e .env.test -- vitest",
+    "test:unit": "vitest run --project unit",
+    "test:integration": "dotenv -e .env.test -- vitest run --project integration",
+    "test:coverage": "dotenv -e .env.test -- vitest run --coverage"
   },
   "keywords": [],
   "author": "",
@@ -35,10 +40,14 @@
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22",
+    "@types/supertest": "^7.2.1",
+    "@vitest/coverage-v8": "^5.0.0",
     "dotenv-cli": "^11.0.0",
     "nodemon": "^3.1.11",
     "prisma": "^5.20.0",
+    "supertest": "^7.2.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.0"
   }
 }
