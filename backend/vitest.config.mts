@@ -9,7 +9,6 @@ export default defineConfig({
       exclude: [
         "src/**/*.dto.ts",
         "src/**/*.test.ts",
-        "src/server.ts",
         "src/test-utils/**",
         "src/app.ts",
         "src/commons/prisma/client.ts",
